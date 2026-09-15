@@ -1,0 +1,571 @@
+/* The integration guide. A document, not an app screen — so it steps out of LEAP's dense 13px
+ * chrome entirely and reads at a comfortable size on a light canvas. It is the only place in the
+ * prototype that argues a case out loud; their own software would never render a pitch.
+ */
+
+.guide {
+    margin: 0 auto;
+    max-width: 900px;
+    /* The root is 13px so LEAP's chrome renders at its real density. The guide is a document, not
+     * part of that chrome, so it resets to a readable size. */
+    font-size: 16px;
+    color: var(--ink);
+}
+
+.guide-hero {
+    padding: 52px 0 42px;
+}
+
+.guide-eyebrow {
+    margin-bottom: 12px;
+    color: var(--leap-navy);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.guide-hero h1 {
+    max-width: 20ch;
+    font-size: 2.75rem;
+    font-weight: 700;
+    line-height: 3.1rem;
+    letter-spacing: -0.025em;
+}
+
+.guide-hero-copy {
+    margin-top: 20px;
+    max-width: 62ch;
+    color: var(--ink-muted);
+    font-size: 1.0625rem;
+    line-height: 1.7rem;
+}
+
+.guide-proof {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 26px;
+}
+
+.guide-proof span {
+    padding: 7px 14px;
+    border: 1px solid var(--leap-line);
+    border-radius: 999px;
+    background: #fff;
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+.guide-section {
+    padding: 40px 0;
+    border-top: 1px solid var(--leap-line-soft);
+}
+
+.guide-section h2 {
+    max-width: 26ch;
+    font-size: 1.875rem;
+    font-weight: 700;
+    line-height: 2.35rem;
+    letter-spacing: -0.02em;
+}
+
+.guide-lede {
+    margin-top: 14px;
+    max-width: 68ch;
+    color: var(--ink-muted);
+    font-size: 1rem;
+    line-height: 1.65rem;
+}
+
+.guide-lede code,
+.guide-hero-copy code {
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.06);
+}
+
+/* ── Insertion points ─────────────────────────────────────────────────────────────── */
+
+.insertions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-top: 26px;
+}
+
+.insertion {
+    padding: 22px;
+    border: 1px solid var(--leap-line-soft);
+    border-radius: 14px;
+    background: #fff;
+}
+
+.insertion--key {
+    border-color: var(--leap-navy);
+    box-shadow: 0 0 0 1px var(--leap-navy);
+}
+
+.insertion-step {
+    display: inline-block;
+    margin-bottom: 12px;
+    padding: 4px 11px;
+    border-radius: 999px;
+    background: var(--leap-panel);
+    color: var(--ink);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.insertion-step code {
+    background: transparent;
+}
+
+.insertion h3 {
+    margin-bottom: 10px;
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+.insertion p {
+    margin-bottom: 12px;
+    color: var(--ink-muted);
+    font-size: 0.9375rem;
+    line-height: 1.5rem;
+}
+
+.insertion p:last-child {
+    margin-bottom: 0;
+}
+
+.insertion-note {
+    padding-top: 12px;
+    border-top: 1px solid var(--leap-line-soft);
+    font-size: 0.875rem !important;
+}
+
+/* ── Architecture ────────────────────────────────────────────────────────────────── */
+
+.architecture {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 26px;
+}
+
+.node {
+    display: flex;
+    flex: 1 1 170px;
+    flex-direction: column;
+    gap: 5px;
+    padding: 16px 18px;
+    border: 1px solid var(--leap-line-soft);
+    border-radius: 12px;
+    background: #fff;
+}
+
+.node span {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--leap-panel);
+    color: var(--ink);
+    font-size: 0.6875rem;
+    font-weight: 700;
+}
+
+.node strong {
+    font-size: 0.9375rem;
+}
+
+.node small {
+    color: var(--ink-muted);
+    font-size: 0.75rem;
+    line-height: 1.1rem;
+}
+
+.node--sail {
+    border-color: var(--leap-navy);
+    background: var(--clear-bg);
+}
+
+.node--human {
+    border-style: dashed;
+}
+
+.arrow {
+    display: grid;
+    place-items: center;
+    color: var(--leap-line);
+}
+
+.security-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 20px;
+    padding: 15px 18px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid var(--leap-line-soft);
+    color: var(--ink-muted);
+    font-size: 0.9375rem;
+    line-height: 1.45rem;
+}
+
+.security-note svg {
+    flex: none;
+    margin-top: 2px;
+    color: var(--leap-navy);
+}
+
+.security-note strong {
+    color: var(--ink);
+}
+
+/* ── Endpoints ───────────────────────────────────────────────────────────────────── */
+
+.endpoints {
+    display: grid;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.endpoint {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 16px;
+    padding: 18px 20px;
+    border: 1px solid var(--leap-line-soft);
+    border-radius: 12px;
+    background: #fff;
+}
+
+.endpoint-number {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: var(--leap-navy);
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 700;
+}
+
+.endpoint-route {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.75rem;
+}
+
+.endpoint-route span {
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: var(--leap-navy);
+    color: #fff;
+    font-size: 0.625rem;
+    font-weight: 700;
+}
+
+.endpoint h3 {
+    margin-bottom: 6px;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.endpoint p {
+    color: var(--ink-muted);
+    font-size: 0.9375rem;
+    line-height: 1.45rem;
+}
+
+.endpoint code {
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.06);
+}
+
+/* ── Code ────────────────────────────────────────────────────────────────────────── */
+
+.code-grid {
+    display: grid;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.code-card {
+    border: 1px solid var(--leap-line-soft);
+    border-radius: 12px;
+    background: #131a22;
+    overflow: hidden;
+}
+
+.code-card summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 18px;
+    cursor: pointer;
+    color: #e5e9ee;
+}
+
+.code-card summary span:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.code-card summary strong {
+    font-size: 0.9375rem;
+}
+
+.code-card summary small {
+    color: rgba(236, 233, 225, 0.6);
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.75rem;
+}
+
+.chevron {
+    display: grid;
+    place-items: center;
+    color: rgba(236, 233, 225, 0.6);
+}
+
+.code-card[open] .chevron {
+    transform: rotate(180deg);
+}
+
+.code-card pre,
+.code-block {
+    margin: 0;
+    padding: 0 18px 18px;
+    overflow: auto;
+    color: #e5e9ee;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.75rem;
+    line-height: 1.35rem;
+}
+
+.code-block {
+    margin-top: 22px;
+    padding: 20px;
+    border-radius: 12px;
+    background: #131a22;
+}
+
+.auth-example {
+    display: grid;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 16px 20px;
+    border: 1px solid var(--leap-line-soft);
+    border-radius: 12px;
+    background: #fff;
+}
+
+.auth-example span {
+    color: var(--ink-faint);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.auth-example code {
+    font-size: 0.8125rem;
+}
+
+.auth-example small {
+    color: var(--ink-muted);
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+}
+
+/* ── Tables ──────────────────────────────────────────────────────────────────────── */
+
+.table-wrap {
+    margin-top: 24px;
+    border: 1px solid var(--leap-line-soft);
+    border-radius: 12px;
+    background: #fff;
+    overflow: auto;
+}
+
+.guide-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.guide-table th {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--leap-line-soft);
+    color: var(--ink-faint);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.guide-table td {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--leap-line-soft);
+    color: var(--ink-muted);
+    line-height: 1.35rem;
+    vertical-align: top;
+}
+
+.guide-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.guide-table code {
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--ink);
+}
+
+/* ── Callouts ────────────────────────────────────────────────────────────────────── */
+
+.callout {
+    margin-top: 20px;
+    padding: 18px 20px;
+    border-radius: 12px;
+    border-left: 4px solid var(--leap-line);
+    background: #fff;
+}
+
+.callout--warn {
+    border-left-color: var(--blocked-ink);
+    background: var(--blocked-bg);
+}
+
+.callout strong {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 0.9375rem;
+}
+
+.callout p {
+    margin-bottom: 9px;
+    color: var(--ink-muted);
+    font-size: 0.9375rem;
+    line-height: 1.5rem;
+}
+
+.callout p:last-child {
+    margin-bottom: 0;
+}
+
+.callout code {
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.07);
+}
+
+/* ── Launch ──────────────────────────────────────────────────────────────────────── */
+
+.guide-launch {
+    display: grid;
+    gap: 24px;
+}
+
+.checklist {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.checklist li {
+    display: grid;
+    grid-template-columns: 26px 1fr;
+    gap: 12px;
+    align-items: center;
+    padding: 15px 16px;
+    border: 1px solid var(--leap-line-soft);
+    border-radius: 12px;
+    background: #fff;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+.checklist span {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    background: var(--leap-panel);
+    color: var(--ink);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.launch-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+@media (max-width: 680px) {
+    .guide-hero h1 {
+        font-size: 2rem;
+        line-height: 2.4rem;
+    }
+
+    .guide-section h2 {
+        font-size: 1.5rem;
+        line-height: 1.9rem;
+    }
+}
+
+/* The guide reuses LEAP's button, so the two CTA classes the shared markup expects are aliases. */
+.cta--inline,
+.secondary-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border: 1px solid var(--leap-line);
+    border-radius: 2px;
+    background: #fff;
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.cta--inline {
+    border-color: var(--leap-navy);
+    background: var(--leap-navy);
+    color: #fff;
+}
+
+.secondary-cta:hover {
+    background: var(--leap-panel);
+}
+
+/* A quotation from the report itself, set apart so a reader can see it is the document's own
+ * words rather than our description of them. */
+.guide-quote {
+    margin: 18px 0;
+    padding: 16px 20px;
+    border-left: 3px solid var(--leap-navy, #1f3864);
+    background: #f6f8fa;
+}
+
+.guide-quote p {
+    font-size: 15px;
+    line-height: 25px;
+}

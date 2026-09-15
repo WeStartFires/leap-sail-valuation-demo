@@ -1,0 +1,409 @@
+/* Sail Property API reference.
+ *
+ * Same brand tokens as the deck, so the two read as one company: Quicksand and Roboto Slab, the
+ * #0E1E47 ground, marine and azure. Docs want a denser, quieter treatment than a deck, so the
+ * ground is white here and the navy is held for the nav rail and the payload panes.
+ *
+ * Fonts are borrowed from ../leap-deck/fonts/ rather than duplicated.
+ */
+
+@font-face {
+    font-family: "Quicksand";
+    font-style: normal;
+    font-weight: 300 700;
+    font-display: swap;
+    src: url("../leap-deck/fonts/quicksand-latin-var.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Roboto Slab";
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+    src: url("../leap-deck/fonts/roboto-slab-latin-var.woff2") format("woff2");
+}
+
+:root {
+    --ink: #0e1e47;
+    --ink-light: #525b73;
+    --marine: #049dcc;
+    --azure: #35b8be;
+    --polar: #e0f5f8;
+    --mist: #f5fbfc;
+    --line: #e4e5ed;
+    --shuttle: #758ca5;
+    --apple: #139159;
+    --coral: #ff8946;
+
+    --display: "Roboto Slab", Georgia, serif;
+    --body: Quicksand, system-ui, -apple-system, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #fff;
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+}
+
+#docs {
+    display: grid;
+    grid-template-columns: 272px 1fr;
+    min-height: 100vh;
+}
+
+/* ── Nav rail ────────────────────────────────────────────────────────────────────── */
+
+.nav {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    padding: 26px 20px 40px;
+    background: var(--ink);
+    color: #fff;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+    font-size: 16px;
+    text-decoration: none;
+}
+
+.brand strong {
+    font-weight: 700;
+}
+
+.brand-mark {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    background: var(--azure);
+}
+
+.nav-version {
+    display: inline-block;
+    margin: 12px 0 22px 36px;
+    padding: 1px 9px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.nav nav {
+    display: grid;
+    gap: 2px;
+}
+
+.nav-group {
+    margin: 18px 0 6px;
+    color: rgba(255, 255, 255, 0.42);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.nav a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 7px;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 13.5px;
+    text-decoration: none;
+}
+
+.nav a:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+/* ── Body ────────────────────────────────────────────────────────────────────────── */
+
+.body {
+    max-width: 880px;
+    padding: 52px 56px 100px;
+}
+
+.head h1 {
+    font-family: var(--display);
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.lede {
+    max-width: 62ch;
+    margin-top: 12px;
+    color: var(--ink-light);
+    font-size: 18px;
+}
+
+.base {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 22px;
+    padding: 9px 16px;
+    border-radius: 10px;
+    background: var(--mist);
+}
+
+.base span {
+    color: var(--shuttle);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.base code {
+    font-family: var(--mono);
+    font-size: 13.5px;
+}
+
+.group {
+    margin-top: 52px;
+    padding-top: 30px;
+    border-top: 1px solid var(--line);
+}
+
+.group h2 {
+    font-family: var(--display);
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.group-blurb {
+    max-width: 66ch;
+    margin-top: 8px;
+    color: var(--ink-light);
+}
+
+/* ── Endpoints ───────────────────────────────────────────────────────────────────── */
+
+.ep {
+    margin-top: 26px;
+    padding-top: 26px;
+    border-top: 1px dashed var(--line);
+    scroll-margin-top: 20px;
+}
+
+.ep-route {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.verb {
+    padding: 2px 9px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.verb--post {
+    background: var(--polar);
+    color: #0b6b8c;
+}
+
+.verb--get {
+    background: #e9f6ef;
+    color: var(--apple);
+}
+
+/* In the rail the verbs sit against navy, so they need their own contrast. */
+.nav .verb--sm {
+    flex: none;
+    width: 40px;
+    padding: 1px 0;
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 9.5px;
+    text-align: center;
+}
+
+.ep-route code {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.ep h3 {
+    margin-top: 10px;
+    font-family: var(--display);
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.ep-body {
+    max-width: 68ch;
+    margin-top: 6px;
+    color: var(--ink-light);
+    font-size: 15px;
+}
+
+.ep-body code,
+.ep-note code,
+.state code {
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: var(--mist);
+    font-family: var(--mono);
+    font-size: 13px;
+}
+
+.ep-panes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.pane-label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--shuttle);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.pane-label em {
+    color: var(--apple);
+    font-style: normal;
+}
+
+pre {
+    overflow-x: auto;
+    padding: 16px 18px;
+    border-radius: 10px;
+    background: var(--ink);
+}
+
+pre.bare {
+    margin-top: 14px;
+}
+
+pre code {
+    color: #dbe4f2;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.65;
+    white-space: pre;
+}
+
+.k {
+    color: #7fd6e6;
+}
+
+.s {
+    color: #a8e6bd;
+}
+
+.n {
+    color: #ffc08a;
+}
+
+.b {
+    color: #c3b0ff;
+}
+
+.ep-note {
+    max-width: 70ch;
+    margin-top: 14px;
+    padding: 13px 18px;
+    border-left: 3px solid var(--coral);
+    border-radius: 8px;
+    background: #fff6f0;
+    color: var(--ink-light);
+    font-size: 14.5px;
+}
+
+.ep-note strong {
+    color: var(--ink);
+}
+
+/* ── Response states ─────────────────────────────────────────────────────────────── */
+
+.states {
+    display: grid;
+    gap: 9px;
+    margin-top: 20px;
+}
+
+.state {
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    gap: 18px;
+    padding: 13px 18px;
+    border-radius: 10px;
+    background: var(--mist);
+}
+
+.state p {
+    color: var(--ink-light);
+    font-size: 14.5px;
+}
+
+.foot {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    color: var(--shuttle);
+    font-size: 14px;
+}
+
+.foot a {
+    color: var(--marine);
+}
+
+@media (max-width: 1000px) {
+    #docs {
+        grid-template-columns: 1fr;
+    }
+
+    .nav {
+        position: static;
+        height: auto;
+    }
+
+    .body {
+        padding: 32px 22px 70px;
+    }
+
+    .ep-panes,
+    .state {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* The instruct route is long enough to run off the rail. Let it truncate rather than clip. */
+.nav a {
+    min-width: 0;
+}
+
+.nav a span:last-child,
+.nav a {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

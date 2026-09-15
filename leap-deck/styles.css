@@ -1,0 +1,2275 @@
+/* The Sail × LEAP deck.
+ *
+ * This is OUR document, so it wears OUR brand. The mockup next door is drawn in LEAP's Office-grey
+ * idiom because it has to pass for their software; a deck does not, and dressing our argument up in
+ * the prospect's colours reads as though we have no identity of our own.
+ *
+ * So every token here is Sail's, lifted from the product rather than invented:
+ *   - Quicksand and Roboto Slab              app/web/src/index.scss, MarketingPage.tsx
+ *   - #0E1E47 ground, white cards on top     containers/MarketingAppContainer/marketing.scss
+ *   - #049DCC marine, #35B8BE azure          scss/variables.scss $front-colours
+ *   - radii 8 / 14 / 20, soft card shadow    scss/marketingTokens.scss
+ *   - 12 / 14 / 17 / 20 / 22 / 34 / 56 type  scss/marketingTokens.scss
+ *
+ * Fonts are self-hosted — see fonts/README.md.
+ */
+
+@font-face {
+    font-family: "Quicksand";
+    font-style: normal;
+    font-weight: 300 700;
+    font-display: swap;
+    src: url("./fonts/quicksand-latin-var.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Roboto Slab";
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+    src: url("./fonts/roboto-slab-latin-var.woff2") format("woff2");
+}
+
+:root {
+    /* $front-colours, verbatim */
+    --ink: #0e1e47;
+    --ink-light: #525b73;
+    --primary-2: #2d3d64;
+    --marine: #049dcc;
+    --azure: #35b8be;
+    --pale: #b6fbff;
+    --paler: #e4f1ff;
+    --polar: #e0f5f8;
+    --mist: #f5fbfc;
+    --fog: #f8fcfd;
+    --line: #e4e5ed;
+    --dust: #9b9eb8;
+    --shuttle: #758ca5;
+    --coral: #ff8946;
+    --apple: #139159;
+    --apple-deep: #126c44;
+
+    /* $mk-radius-*, $mk-shadow-card */
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --shadow-card: 0 10px 34px rgba(6, 16, 40, 0.18);
+    --shadow-raised: 0 24px 60px rgba(6, 16, 40, 0.34);
+
+    --display: "Roboto Slab", Georgia, serif;
+    --body: Quicksand, system-ui, -apple-system, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    background: var(--ink);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 17px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+}
+
+/* ── Chrome ──────────────────────────────────────────────────────────────────────── */
+
+/* Navy ground with white cards on it, which is the marketing site's whole structure. */
+.deck {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 100vh;
+    padding: 48px 56px 76px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.deck-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: var(--ink);
+}
+
+/* A white slide, for the moments that want to feel like the report rather than the pitch. */
+.deck--paper .deck-bg {
+    background: var(--mist);
+}
+
+.deck--paper {
+    color: var(--ink);
+}
+
+.deck-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.deck--paper .deck-progress {
+    background: rgba(14, 30, 71, 0.1);
+}
+
+.deck-progress > span {
+    display: block;
+    height: 100%;
+    background: var(--azure);
+    transition: width 180ms ease-out;
+}
+
+.deck-controls {
+    position: absolute;
+    right: 28px;
+    bottom: 22px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.deck-btn {
+    width: 30px;
+    height: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.26);
+    border-radius: var(--radius-pill, 999px);
+    background: transparent;
+    color: rgba(255, 255, 255, 0.75);
+    font-family: var(--body);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.deck-btn:hover {
+    border-color: var(--azure);
+    color: var(--azure);
+}
+
+.deck--paper .deck-btn {
+    border-color: var(--line);
+    color: var(--shuttle);
+}
+
+.deck--paper .deck-btn:hover {
+    border-color: var(--marine);
+    color: var(--marine);
+}
+
+.deck-count {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.06em;
+}
+
+.deck--paper .deck-count {
+    color: var(--dust);
+}
+
+/* ── Stage ───────────────────────────────────────────────────────────────────────── */
+
+.stage {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 1080px;
+    max-height: 100%;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.stage::-webkit-scrollbar {
+    display: none;
+}
+
+.stage-copy > * + * {
+    margin-top: 18px;
+}
+
+/* deck.js drops the illustration in as a sibling of .stage-copy. */
+.stage--custom {
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+}
+
+/* ── Type ────────────────────────────────────────────────────────────────────────── */
+
+.eyebrow {
+    color: var(--azure);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.deck--paper .eyebrow {
+    color: var(--marine);
+}
+
+.mega-title {
+    max-width: 17ch;
+    font-family: var(--display);
+    font-size: clamp(38px, 4.8vw, 56px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.12;
+}
+
+.big-title {
+    max-width: 25ch;
+    font-family: var(--display);
+    font-size: clamp(26px, 2.9vw, 34px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+}
+
+.stage--statement .big-title {
+    max-width: 22ch;
+    font-size: clamp(30px, 3.6vw, 44px);
+}
+
+.sub {
+    max-width: 62ch;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 17px;
+    line-height: 1.65;
+}
+
+.deck--paper .sub {
+    color: var(--ink-light);
+}
+
+.sub strong,
+.sub em {
+    color: #fff;
+    font-style: normal;
+    font-weight: 600;
+}
+
+.deck--paper .sub strong,
+.deck--paper .sub em {
+    color: var(--ink);
+}
+
+.micro {
+    max-width: 78ch;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.deck--paper .micro {
+    border-top-color: var(--line);
+    color: var(--shuttle);
+}
+
+.micro strong,
+.micro em {
+    color: rgba(255, 255, 255, 0.9);
+    font-style: normal;
+    font-weight: 600;
+}
+
+.deck--paper .micro strong,
+.deck--paper .micro em {
+    color: var(--ink);
+}
+
+.foot {
+    color: rgba(255, 255, 255, 0.42);
+    font-size: 13px;
+}
+
+.deck--paper .foot {
+    color: var(--dust);
+}
+
+a {
+    color: inherit;
+    text-decoration-color: var(--azure);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+}
+
+a:hover {
+    color: var(--azure);
+}
+
+.deck--paper a:hover {
+    color: var(--marine);
+}
+
+/* ── The card, which is the whole marketing system ───────────────────────────────── */
+
+.stat-grid,
+.cards,
+.price-row {
+    display: grid;
+    gap: 14px;
+}
+
+.stat-grid {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.cards--3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.price-row {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.stat,
+.card,
+.price-cell,
+.note,
+.run-step,
+.tree-item,
+.stack-row,
+.row,
+.ladder-row {
+    background: #fff;
+    color: var(--ink);
+}
+
+.stat,
+.card,
+.price-cell {
+    padding: 24px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+}
+
+.stat-figure {
+    display: block;
+    margin-bottom: 8px;
+    font-family: var(--display);
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--marine);
+}
+
+.stat strong {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.stat small {
+    display: block;
+    margin-top: 5px;
+    color: var(--ink-light);
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.card-number {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    margin-bottom: 13px;
+    border-radius: 999px;
+    background: var(--polar);
+    color: var(--marine);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.card-title {
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.card-body {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+    color: var(--ink-light);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.price-cell {
+    text-align: center;
+}
+
+.price-cell span {
+    display: block;
+    font-family: var(--display);
+    font-size: 62px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--apple);
+}
+
+.price-cell small {
+    display: block;
+    margin-top: 10px;
+    color: var(--ink-light);
+    font-size: 15px;
+}
+
+/* ── The stack ───────────────────────────────────────────────────────────────────── */
+
+.stack-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.stack-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 15px 18px;
+    border-radius: var(--radius-sm);
+}
+
+.stack-tick {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 21px;
+    height: 21px;
+    margin-top: 1px;
+    border-radius: 999px;
+    background: var(--polar);
+    color: var(--apple);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.stack-row strong {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.stack-row p {
+    margin-top: 2px;
+    color: var(--ink-light);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* ── Rows ────────────────────────────────────────────────────────────────────────── */
+
+.rows {
+    display: grid;
+    gap: 8px;
+}
+
+.row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 22px;
+    padding: 15px 20px;
+    border-radius: var(--radius-sm);
+}
+
+.rows--tight .row {
+    padding: 11px 20px;
+}
+
+.row-lead {
+    flex: none;
+    width: 210px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--marine);
+}
+
+.row-main {
+    flex: 1;
+}
+
+.row-main strong {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.row-main p {
+    max-width: 80ch;
+    color: var(--ink-light);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.row-where {
+    flex: none;
+    padding: 4px 11px;
+    border-radius: 999px;
+    background: var(--polar);
+    color: var(--primary-2);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ── Notes ───────────────────────────────────────────────────────────────────────── */
+
+.notes {
+    display: grid;
+    gap: 8px;
+}
+
+.note {
+    padding: 13px 18px;
+    border-left: 3px solid var(--marine);
+    border-radius: var(--radius-sm);
+    color: var(--ink-light);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.note strong {
+    color: var(--ink);
+    font-weight: 700;
+}
+
+.note span {
+    display: block;
+    margin-top: 3px;
+}
+
+/* ── Quote ───────────────────────────────────────────────────────────────────────── */
+
+.quote {
+    max-width: 74ch;
+    padding: 26px 30px;
+    border-left: 4px solid var(--marine);
+    border-radius: var(--radius-md);
+    background: #fff;
+    box-shadow: var(--shadow-card);
+    color: var(--ink);
+    font-family: var(--display);
+    font-size: 21px;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+/* Words that are on the document now, rather than a statute being cited. */
+.quote--live {
+    border-left-color: var(--coral);
+}
+
+/* ── Definition list ─────────────────────────────────────────────────────────────── */
+
+.about-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 8px;
+}
+
+.about-list > div {
+    padding: 14px 18px;
+    border-radius: var(--radius-sm);
+    background: #fff;
+    color: var(--ink);
+}
+
+.about-list dt {
+    color: var(--shuttle);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.about-list dd {
+    margin-top: 3px;
+    font-size: 15px;
+}
+
+/* ── Tables ──────────────────────────────────────────────────────────────────────── */
+
+.grid-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: #fff;
+    box-shadow: var(--shadow-card);
+    color: var(--ink);
+}
+
+.grid-table th {
+    padding: 13px 20px;
+    background: var(--polar);
+    color: var(--primary-2);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.grid-table td {
+    padding: 15px 20px;
+    border-top: 1px solid var(--line);
+    font-size: 15px;
+    line-height: 1.5;
+    vertical-align: top;
+}
+
+.grid-table tbody tr:first-child td {
+    border-top: none;
+}
+
+.phase-number {
+    width: 52px;
+    font-family: var(--display);
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--dust);
+}
+
+.phase--done {
+    background: #eef8f2;
+}
+
+.phase--done .phase-number {
+    color: var(--apple);
+}
+
+.phase--next .phase-number {
+    color: var(--marine);
+}
+
+/* ── Illustration: the blocked tree ──────────────────────────────────────────────── */
+
+.ill--tree {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    align-items: start;
+}
+
+.tree-group-name {
+    display: block;
+    margin-bottom: 8px;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.deck--paper .tree-group-name {
+    color: var(--shuttle);
+}
+
+.tree-item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+}
+
+.tree-item + .tree-item {
+    margin-top: 6px;
+}
+
+.tree-item em {
+    flex: none;
+    color: var(--shuttle);
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.tree-item--here {
+    border-left: 3px solid var(--marine);
+    font-weight: 600;
+}
+
+.tree-item--here em {
+    color: var(--marine);
+}
+
+.tree-item--blocked {
+    border-left: 3px solid var(--coral);
+    background: #fff4ec;
+}
+
+.tree-item--blocked em.is-blocked {
+    color: #b8531b;
+}
+
+.tree-item--done {
+    color: var(--ink-light);
+}
+
+.tree-caption {
+    grid-column: 1 / -1;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 17px;
+}
+
+.deck--paper .tree-caption {
+    border-top-color: var(--line);
+    color: var(--ink-light);
+}
+
+/* ── Illustration: the price ladder ──────────────────────────────────────────────── */
+
+.ill--ladder {
+    display: grid;
+    gap: 10px;
+}
+
+.ladder-row {
+    display: grid;
+    grid-template-columns: 230px 150px 1fr;
+    align-items: center;
+    gap: 20px;
+    padding: 18px 22px;
+    border-radius: var(--radius-md);
+}
+
+.ladder-route {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.ladder-cost {
+    font-family: var(--display);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink-light);
+}
+
+.ladder-problem {
+    color: var(--ink-light);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.ladder-row--ours {
+    box-shadow: var(--shadow-raised);
+}
+
+.ladder-row--ours .ladder-route {
+    color: var(--marine);
+}
+
+.ladder-row--ours .ladder-cost {
+    color: var(--apple);
+    font-size: 40px;
+}
+
+/* ── Illustration: the service mix ───────────────────────────────────────────────── */
+
+.ill--mix {
+    display: grid;
+    gap: 9px;
+    padding: 24px 26px;
+    border-radius: var(--radius-md);
+    background: #fff;
+    box-shadow: var(--shadow-card);
+    color: var(--ink);
+}
+
+.mix-row {
+    display: grid;
+    grid-template-columns: 195px 1fr 54px;
+    align-items: center;
+    gap: 16px;
+}
+
+.mix-label {
+    font-size: 14px;
+    font-weight: 600;
+    text-align: right;
+}
+
+.mix-track {
+    height: 22px;
+    border-radius: 999px;
+    background: var(--mist);
+}
+
+.mix-fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--marine), var(--azure));
+}
+
+.mix-count {
+    color: var(--ink-light);
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+}
+
+.mix-caption {
+    margin-top: 8px;
+    padding-top: 13px;
+    border-top: 1px solid var(--line);
+    color: var(--ink-light);
+    font-size: 15px;
+}
+
+/* ── Illustration: the property run ──────────────────────────────────────────────── */
+
+.ill--run {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 11px;
+}
+
+.run-step {
+    padding: 18px 16px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+}
+
+.run-index {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    margin-bottom: 9px;
+    border-radius: 999px;
+    background: var(--polar);
+    color: var(--marine);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.run-step strong {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.run-step p {
+    margin-top: 5px;
+    color: var(--ink-light);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.run-when {
+    display: block;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+    color: var(--shuttle);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+@media (max-width: 1080px) {
+    .deck {
+        padding: 32px 22px 72px;
+    }
+
+    .stat-grid,
+    .cards--3,
+    .price-row,
+    .stack-list,
+    .ill--tree,
+    .ill--run {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .ladder-row,
+    .mix-row {
+        grid-template-columns: 1fr;
+        gap: 7px;
+    }
+
+    .mix-label {
+        text-align: left;
+    }
+
+    .row {
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .row-lead {
+        width: auto;
+    }
+}
+
+.mix-head {
+    margin-bottom: 6px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink-light);
+    font-size: 15px;
+}
+
+.mix-head strong {
+    color: var(--ink);
+    font-weight: 700;
+}
+
+/* ── Mock screens ────────────────────────────────────────────────────────────────── */
+
+/* LEAP's grey chrome, shrunk to a window sitting on our navy. The contrast is the argument: their
+ * software, our card inside it. Densities are LEAP's, not ours — 12–13px type, square corners,
+ * filled grey fields — because a Sail-looking panel would not read as being in their product. */
+
+.ill--two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: start;
+}
+
+.scr {
+    overflow: hidden;
+    border-radius: 10px;
+    background: #eff1f3;
+    box-shadow: var(--shadow-card);
+    font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+/* The pane the eye should land on — the "after". */
+.scr--lit {
+    box-shadow: 0 0 0 2px var(--azure), var(--shadow-raised);
+}
+
+.scr-bar {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 12px;
+    background: #1f3864;
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 11px;
+}
+
+.scr-dots {
+    display: flex;
+    gap: 4px;
+}
+
+.scr-dots i {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.28);
+}
+
+.scr-body {
+    padding: 14px;
+    color: #1f242b;
+}
+
+.mk-row {
+    display: grid;
+    grid-template-columns: 118px 1fr;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.mk-label {
+    color: #5c6570;
+    font-size: 11px;
+}
+
+.mk-field {
+    padding: 6px 9px;
+    border: 1px solid #c6ccd2;
+    border-radius: 2px;
+    background: #d9dbdd;
+    font-size: 12px;
+}
+
+.mk-field--empty {
+    color: #8a5a12;
+    background: #fdf4e3;
+    border-color: #e6cf9e;
+}
+
+.mk-field--filled {
+    background: #fff;
+    font-weight: 600;
+}
+
+.mk-card {
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px solid #c6ccd2;
+    border-top: 3px solid #049dcc;
+    border-radius: 2px;
+    background: #fff;
+}
+
+.mk-card--done {
+    border-top-color: #139159;
+}
+
+.mk-card-head {
+    display: block;
+    margin-bottom: 7px;
+    color: #0e1e47;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.mk-card-lede {
+    color: #5c6570;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.mk-card-lede strong {
+    color: #1f242b;
+}
+
+.mk-card-note {
+    margin-top: 8px;
+    color: #8d959e;
+    font-size: 10.5px;
+    line-height: 1.45;
+}
+
+.mk-btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 7px 13px;
+    border-radius: 2px;
+    background: #1f3864;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.mk-btn--sm {
+    margin-top: 0;
+    padding: 4px 10px;
+    font-size: 11px;
+}
+
+.mk-figure {
+    padding: 10px 12px;
+    border-radius: 2px;
+    background: #f0f7ff;
+}
+
+.mk-figure-label {
+    display: block;
+    color: #5c6570;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.mk-figure strong {
+    display: block;
+    margin: 2px 0;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.mk-figure-sub {
+    color: #5c6570;
+    font-size: 11px;
+}
+
+.scr--wide {
+    max-width: 780px;
+}
+
+/* ── Mock: the valuation result ──────────────────────────────────────────────────── */
+
+.mk-vals {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.mk-val {
+    padding: 14px;
+    border: 1px solid #c6ccd2;
+    border-radius: 2px;
+    background: #fff;
+}
+
+.mk-val--lead {
+    border-left: 3px solid #139159;
+    background: #f2faf6;
+}
+
+.mk-val span {
+    display: block;
+    color: #5c6570;
+    font-size: 10.5px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.mk-val strong {
+    display: block;
+    margin: 4px 0 2px;
+    font-size: 27px;
+    font-weight: 700;
+}
+
+.mk-val--lead strong {
+    color: #126c44;
+}
+
+.mk-val small {
+    color: #8d959e;
+    font-size: 11px;
+}
+
+.mk-foot {
+    margin-top: 11px;
+    padding-top: 10px;
+    border-top: 1px solid #dfe3e7;
+    color: #5c6570;
+    font-size: 11.5px;
+}
+
+/* ── Mock: the services panel ────────────────────────────────────────────────────── */
+
+.mk-svcs {
+    display: grid;
+    gap: 6px;
+}
+
+.mk-svc {
+    display: grid;
+    grid-template-columns: 1fr 130px 90px 110px;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid #c6ccd2;
+    border-radius: 2px;
+    background: #fff;
+    font-size: 12px;
+}
+
+.mk-svc--live {
+    border-left: 3px solid #139159;
+}
+
+.mk-svc--quoted {
+    border-left: 3px solid #f5811f;
+    background: #fdf6ef;
+}
+
+.mk-svc-name {
+    font-weight: 600;
+}
+
+.mk-svc-state {
+    color: #5c6570;
+    font-size: 11px;
+}
+
+.mk-svc-price {
+    font-weight: 600;
+    text-align: right;
+}
+
+.mk-billing {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 9px;
+    margin-top: 13px;
+    padding-top: 12px;
+    border-top: 1px solid #dfe3e7;
+}
+
+.mk-billing-head {
+    color: #5c6570;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.mk-choice {
+    padding: 6px 12px;
+    border: 1px solid #c6ccd2;
+    border-radius: 999px;
+    background: #fff;
+    font-size: 12px;
+}
+
+.mk-choice--on {
+    border-color: #139159;
+    background: #eef8f2;
+    color: #126c44;
+    font-weight: 600;
+}
+
+.cards--2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.card--key {
+    box-shadow: var(--shadow-raised);
+}
+
+.card-foot {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+}
+
+.card-foot em {
+    display: block;
+    color: var(--marine);
+    font-style: normal;
+    font-weight: 700;
+}
+
+.card-foot span {
+    display: block;
+    margin-top: 4px;
+    color: var(--ink-light);
+}
+
+@media (max-width: 1080px) {
+    .ill--two,
+    .mk-vals {
+        grid-template-columns: 1fr;
+    }
+
+    .mk-svc {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* The three promises, folded onto the price slide so the two do not need separate pages. */
+.promises {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.promise {
+    padding: 14px 18px;
+    border-radius: var(--radius-sm);
+    background: #fff;
+    color: var(--ink);
+}
+
+.promise strong {
+    display: block;
+    font-family: var(--display);
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.promise p {
+    margin-top: 4px;
+    color: var(--ink-light);
+    font-size: 13.5px;
+    line-height: 1.5;
+}
+
+@media (max-width: 1080px) {
+    .promises {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* The tree now sits inside the white window rather than on the navy, so its labels have to flip.
+ * Without this the group headings are white on white and vanish. */
+.scr .tree-group-name {
+    color: #5c6570;
+}
+
+.scr .tree-item {
+    border: 1px solid #c6ccd2;
+}
+
+.scr .tree-item--here {
+    border-left: 3px solid var(--marine);
+}
+
+.scr .tree-item--blocked {
+    border-left: 3px solid var(--coral);
+}
+
+.ill--tree {
+    align-items: start;
+}
+
+/* ── Real captures of the concept ────────────────────────────────────────────────── */
+
+/* Screenshots of the Estate Administration recreation, so a slide shows the actual screen rather
+ * than our drawing of it. The rounded clip and the shadow are the same treatment the mock windows
+ * had, so the two read as one family. */
+.ill--shot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: var(--shadow-card);
+}
+
+.ill--shot--lit img {
+    box-shadow: 0 0 0 2px var(--azure), var(--shadow-raised);
+}
+
+.ill--shot figcaption {
+    margin-top: 11px;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 14px;
+}
+
+.deck--paper .ill--shot figcaption {
+    color: var(--ink-light);
+}
+
+/* Captures need a ceiling or they push the caption below the fold. Height rather than width,
+ * because the stage is height-constrained and the images vary in aspect. */
+.ill--shot img {
+    max-height: 56vh;
+    width: auto;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.ill--two .ill--shot img {
+    max-height: 46vh;
+}
+
+.stage[data-slide="services-screen"] .ill--shot img {
+    max-height: 60vh;
+}
+
+/* ── The two routes into deferred billing ────────────────────────────────────────── */
+
+.paths {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.path {
+    padding: 22px;
+    border-radius: var(--radius-md);
+    background: #fff;
+    box-shadow: var(--shadow-card);
+    color: var(--ink);
+}
+
+.path-index {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    margin-bottom: 12px;
+    border-radius: 999px;
+    background: var(--polar);
+    color: var(--marine);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.path strong {
+    display: block;
+    font-family: var(--display);
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.path p {
+    margin-top: 8px;
+    color: var(--ink-light);
+    font-size: 14.5px;
+    line-height: 1.55;
+}
+
+.path-step {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 5px 13px;
+    border-radius: 999px;
+    background: #eef8f2;
+    color: var(--apple-deep, #126c44);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* The line that answers the compliance question, so it sits apart from the two cards. */
+.path-note {
+    margin-top: 16px;
+    padding: 14px 18px;
+    border-left: 3px solid var(--azure);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 14.5px;
+    line-height: 1.55;
+}
+
+.path-note strong {
+    color: #fff;
+}
+
+.price-row--pair {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 720px;
+}
+
+@media (max-width: 1080px) {
+    .paths {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── Where LEAP sits ─────────────────────────────────────────────────────────────── */
+
+.ill--position {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+
+.pos {
+    padding: 22px;
+    border-radius: var(--radius-md);
+    background: #fff;
+    box-shadow: var(--shadow-card);
+    color: var(--ink);
+}
+
+/* The middle box is the one carrying the liability, so it is the one that reads as ours. */
+.pos--ours {
+    border-top: 3px solid var(--marine);
+}
+
+.pos-who {
+    display: block;
+    margin-bottom: 8px;
+    font-family: var(--display);
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.pos p {
+    color: var(--ink-light);
+    font-size: 14.5px;
+    line-height: 1.55;
+}
+
+/* ── The referral model ──────────────────────────────────────────────────────────── */
+
+.ill--referral {
+    max-width: 760px;
+}
+
+.ref-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.ref-rate {
+    font-family: var(--display);
+    font-size: 56px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--apple);
+}
+
+.ref-basis {
+    color: var(--ink-light);
+    font-size: 17px;
+}
+
+.ill--referral .grid-table td strong {
+    color: var(--apple);
+}
+
+/* The average price is an assumption, and the note has to be readable enough that nobody quotes
+ * the table back at us as though it were a forecast. */
+.ref-note {
+    margin-top: 14px;
+    padding-top: 13px;
+    border-top: 1px solid var(--line);
+    color: var(--ink-light);
+    font-size: 14px;
+}
+
+.ref-note strong {
+    color: var(--ink);
+}
+
+@media (max-width: 1080px) {
+    .ill--position {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* The agency fee sits under the basis line, because 0.2% only means something once you can see
+ * what it is 0.2% of. */
+.ref-basis em {
+    display: block;
+    margin-top: 4px;
+    color: var(--shuttle);
+    font-size: 14px;
+    font-style: normal;
+}
+
+/* ── The value stack ─────────────────────────────────────────────────────────────── */
+
+/* Priced in hours, because the estate pays for the work either way. A money total here would be
+ * a number we cannot stand behind. */
+.ill--stack {
+    max-width: 1000px;
+}
+
+.stack-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: #fff;
+    box-shadow: var(--shadow-card);
+    color: var(--ink);
+}
+
+.stack-table th {
+    padding: 12px 18px;
+    background: var(--polar);
+    color: var(--primary-2);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.stack-table td {
+    padding: 13px 18px;
+    border-top: 1px solid var(--line);
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.stack-table tbody tr:first-child td {
+    border-top: none;
+}
+
+.stack-table .dim {
+    color: var(--shuttle);
+}
+
+.stack-table .win {
+    color: var(--apple-deep);
+    font-weight: 600;
+}
+
+.stack-table .num {
+    width: 110px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.stack-table tfoot td {
+    border-top: 2px solid var(--ink);
+    background: var(--mist);
+    font-size: 15px;
+}
+
+.stack-table tfoot .num strong {
+    font-family: var(--display);
+    font-size: 22px;
+    color: var(--apple);
+}
+
+.stack-note {
+    margin-top: 13px;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.stack-note em {
+    font-style: normal;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* ── The empty-house clock ───────────────────────────────────────────────────────── */
+
+.clock-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.tick {
+    padding: 20px;
+    border-radius: var(--radius-md);
+    background: #fff;
+    box-shadow: var(--shadow-card);
+    color: var(--ink);
+}
+
+.tick-when {
+    display: block;
+    color: var(--shuttle);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.tick strong {
+    display: block;
+    margin: 6px 0 6px;
+    font-family: var(--display);
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.tick p {
+    color: var(--ink-light);
+    font-size: 13.5px;
+    line-height: 1.5;
+}
+
+.tick--free strong {
+    color: var(--apple);
+}
+
+.tick--full strong {
+    color: var(--coral);
+}
+
+/* The cliff. This is the one that costs the estate real money. */
+.tick--double {
+    border-top: 3px solid #b8351b;
+}
+
+.tick--double strong {
+    color: #b8351b;
+}
+
+.clock-also {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 5px 22px;
+    margin-top: 16px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+    list-style: none;
+}
+
+.clock-also li {
+    position: relative;
+    padding-left: 16px;
+    color: rgba(255, 255, 255, 0.74);
+    font-size: 13.5px;
+    line-height: 1.5;
+}
+
+.clock-also li::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: 0;
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--coral);
+}
+
+/* ── Case studies ────────────────────────────────────────────────────────────────── */
+
+.ill--cases {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 13px;
+}
+
+.case {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    border-radius: var(--radius-md);
+    background: #fff;
+    box-shadow: var(--shadow-card);
+    color: var(--ink);
+}
+
+.case-place {
+    color: var(--marine);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.case strong {
+    margin: 7px 0 8px;
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.case p {
+    color: var(--ink-light);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.case-numbers {
+    display: grid;
+    gap: 3px;
+    margin: 12px 0;
+    padding: 11px 13px;
+    border-radius: var(--radius-sm);
+    background: var(--mist);
+}
+
+.case-numbers span {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.case-numbers em {
+    color: var(--ink-light);
+    font-style: normal;
+    font-weight: 400;
+}
+
+.case-outcome {
+    margin-top: auto;
+    padding-top: 11px;
+    border-top: 1px solid var(--line);
+    color: var(--ink) !important;
+    font-weight: 600;
+}
+
+@media (max-width: 1080px) {
+    .clock-row,
+    .ill--cases,
+    .clock-also {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── The live concept, embedded ──────────────────────────────────────────────────── */
+
+/* The concept is laid out for a desktop window, so it renders at its natural width and is scaled
+ * down with a transform. Squashing it to fit would break the very layout we are claiming passes
+ * for LEAP's software. */
+.live-shell {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    border-radius: 10px;
+    background: #eff1f3;
+    box-shadow: var(--shadow-card);
+}
+
+.live-frame {
+    display: block;
+    border: 0;
+    transform-origin: 0 0;
+}
+
+/* The frame reads as a picture until it is framed like a thing. A coral rule around it, matching
+ * the coach marks inside, ties the annotation and the target together. */
+.ill--live .live-shell {
+    outline: 2px solid var(--marine);
+    outline-offset: 0;
+    box-shadow: var(--shadow-card), 0 0 0 6px rgba(4, 157, 204, .18);
+}
+
+/* A live frame in a deck looks exactly like a screenshot until someone touches it, so it needs to
+ * say out loud that it is not one. */
+.live-hint {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 15px;
+}
+
+.live-hint strong {
+    color: #fff;
+    font-weight: 600;
+}
+
+.live-hint em {
+    color: rgba(255, 255, 255, 0.45);
+    font-style: normal;
+}
+
+.live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--azure);
+    box-shadow: 0 0 0 0 rgba(53, 184, 190, 0.7);
+    animation: live-pulse 2.2s ease-out infinite;
+}
+
+@keyframes live-pulse {
+    70% { box-shadow: 0 0 0 9px rgba(53, 184, 190, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(53, 184, 190, 0); }
+}
+
+/* While the frame holds focus the deck cannot hear the arrow keys, so say so rather than letting
+ * the presenter think the deck has hung. */
+body.frame-has-focus .live-hint em {
+    color: var(--coral);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .live-dot { animation: none; }
+}
+
+/* The real front elevation off each listing. A case study about a house reads as an anecdote
+ * until you can see the house. */
+.case-photo {
+    display: block;
+    width: calc(100% + 40px);
+    height: 150px;
+    margin: -20px -20px 14px;
+    object-fit: cover;
+    background: var(--mist);
+}
+
+/* ── Handled in-house, versus handled by us ──────────────────────────────────────── */
+
+.ill--chaos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: stretch;
+}
+
+.panel {
+    display: flex;
+    flex-direction: column;
+    padding: 18px 20px 20px;
+    border-radius: var(--radius-md);
+    background: #fff;
+    box-shadow: var(--shadow-card);
+    color: var(--ink);
+}
+
+.panel figcaption {
+    margin-bottom: 6px;
+}
+
+.panel-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.panel-tag--bad {
+    background: #fdece4;
+    color: #b8351b;
+}
+
+.panel-tag--good {
+    background: #eef8f2;
+    color: var(--apple-deep);
+}
+
+.panel-note {
+    margin-top: auto;
+    padding-top: 13px;
+    border-top: 1px solid var(--line);
+    color: var(--ink-light);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* ── The left panel: every thread at once ────────────────────────────────────────── */
+
+.wires {
+    width: 100%;
+    height: auto;
+}
+
+.wire {
+    stroke: #e08a6d;
+    stroke-width: 1.4;
+}
+
+/* The traffic that has to route through the fee earner because none of these parties can talk to
+ * each other. This is the line set that makes the panel look the way the job feels. */
+.wire--cross {
+    stroke: #c9553a;
+    stroke-width: 1;
+    stroke-dasharray: 3 4;
+    opacity: 0.75;
+}
+
+.hub {
+    fill: #fdece4;
+    stroke: #b8351b;
+    stroke-width: 2;
+}
+
+.hub-label {
+    fill: #b8351b;
+    font-family: var(--body);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.pin circle {
+    fill: #fff;
+    stroke: #b8351b;
+    stroke-width: 2;
+}
+
+.pin text {
+    fill: var(--ink);
+    font-family: var(--body);
+    font-size: 12.5px;
+    font-weight: 600;
+}
+
+/* ── The right panel: one thread ─────────────────────────────────────────────────── */
+
+.contained {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 8px 0 4px;
+}
+
+.step {
+    padding: 13px 16px;
+    border-radius: var(--radius-sm);
+    background: var(--mist);
+}
+
+.step--ours {
+    background: var(--polar);
+    border-left: 3px solid var(--marine);
+}
+
+.step strong {
+    display: block;
+    font-family: var(--display);
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.step p {
+    margin-top: 2px;
+    color: var(--ink-light);
+    font-size: 13.5px;
+    line-height: 1.45;
+}
+
+.step-arrow {
+    width: 2px;
+    height: 16px;
+    margin: 0 0 0 24px;
+    background: var(--marine);
+}
+
+/* The nine parties are still on the page. The work does not vanish, it moves — and a diagram that
+ * pretended otherwise is the kind a practitioner disbelieves on sight. */
+.step-fan {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin: 12px 0 0 24px;
+    padding: 11px 13px;
+    border-left: 2px dashed var(--dust);
+}
+
+.step-fan span {
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--mist);
+    color: var(--ink-light);
+    font-size: 12px;
+}
+
+@media (max-width: 1080px) {
+    .ill--chaos {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* The estimate as the second option on the card, not the first. */
+.mk-alt {
+    margin-top: 11px;
+    padding-top: 10px;
+    border-top: 1px solid #dfe3e7;
+}
+
+.mk-btn--ghost {
+    background: #fff;
+    border: 1px solid #1f3864;
+    color: #1f3864;
+}
+
+.mk-booked {
+    margin-bottom: 10px;
+    padding: 9px 11px;
+    border-left: 3px solid #139159;
+    border-radius: 2px;
+    background: #eef8f2;
+    color: #126c44;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 16px;
+}
+
+/* ── The leak: everything else the empty house costs ─────────────────────────────── */
+
+.clock-lead {
+    margin: 16px 0 10px;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 15px;
+}
+
+.clock-also {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.leak {
+    padding: 11px 14px;
+    border-left: 3px solid var(--coral);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.leak strong {
+    display: block;
+    color: #fff;
+    font-size: 14px;
+}
+
+.leak span {
+    display: block;
+    margin-top: 2px;
+    color: rgba(255, 255, 255, 0.66);
+    font-size: 12.5px;
+    line-height: 1.45;
+}
+
+/* ── The rate card ───────────────────────────────────────────────────────────────── */
+
+.ill--rates {
+    max-width: 940px;
+}
+
+/* Two columns, because the split is the message: most of this has a published price, and the
+ * three that genuinely cannot are shown as what we have actually charged rather than dressed up
+ * as a rate. */
+.rates-split {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 22px;
+    align-items: start;
+}
+
+.rates-head {
+    margin: 0 0 10px;
+    color: rgba(255, 255, 255, 0.72);
+    font-family: var(--body);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+}
+
+.rates-col--quoted .rates-head {
+    color: var(--pale);
+}
+
+.rates {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.rates-col--quoted .rates {
+    grid-template-columns: 1fr;
+}
+
+.rate {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 16px;
+    border-radius: var(--radius-sm);
+    background: #fff;
+    color: var(--ink);
+}
+
+.rate span {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 14px;
+}
+
+.rate span em {
+    color: var(--shuttle);
+    font-size: 11px;
+    font-style: normal;
+}
+
+.rate strong {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    font-family: var(--display);
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--apple-deep);
+    text-align: right;
+    white-space: nowrap;
+}
+
+.rate strong em {
+    font-family: var(--body);
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 600;
+    color: var(--shuttle);
+}
+
+/* The quoted three are the same object in a different state, so they read as a variant of the
+ * card rather than a different kind of thing. */
+.rate--quoted {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px dashed rgba(182, 251, 255, 0.45);
+    color: #fff;
+}
+
+.rate--quoted span em,
+.rate--quoted strong em {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.rate--quoted strong {
+    font-size: 17px;
+    color: var(--pale);
+}
+
+.rates-note {
+    margin-top: 14px;
+    padding-top: 13px;
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+    color: rgba(255, 255, 255, 0.74);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+@media (max-width: 1080px) {
+    .clock-also,
+    .rates {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── The app frame ────────────────────────────────────────────────────────────────── */
+
+/* 1280x660 of LEAP, scaled to whatever height the screen can spare. The shell matches the scaled
+ * content exactly so the hint underneath never drops off a 800px laptop. */
+.live-shell--app { width: 794px; height: 409px; }
+.live-frame--app { transform: scale(.62); }
+
+@media (min-height: 860px) {
+    .live-shell--app { width: 947px; height: 488px; }
+    .live-frame--app { transform: scale(.74); }
+}
+
+@media (min-height: 1000px) {
+    .live-shell--app { width: 1075px; height: 554px; }
+    .live-frame--app { transform: scale(.84); }
+}
+
+/* ── The report frame ─────────────────────────────────────────────────────────────── */
+
+/* A 1060x850 document scaled to whatever height the screen can spare. The shell is sized to
+ * match the scaled content exactly, so the caption underneath never gets pushed off a 800px
+ * laptop — which is where the instruction to scroll matters most. */
+.live-shell--report {
+    width: 530px;
+    height: 425px;
+}
+
+.live-frame--report {
+    transform: scale(.5);
+}
+
+@media (min-height: 860px) {
+    .live-shell--report { width: 657px; height: 527px; }
+    .live-frame--report { transform: scale(.62); }
+}
+
+@media (min-height: 1000px) {
+    .live-shell--report { width: 742px; height: 595px; }
+    .live-frame--report { transform: scale(.7); }
+}

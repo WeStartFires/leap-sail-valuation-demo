@@ -1,0 +1,3304 @@
+/* LEAP Estate Administration prototype.
+ *
+ * LEAP's desktop client deliberately resembles Microsoft Office: dense grey-blue chrome, a
+ * left-hand tree as the spine of every screen, tabbed panels, grey-filled form fields, and a
+ * Save/Close pair bottom-right. Third-party reviews describe it that way and their own screenshots
+ * confirm it.
+ *
+ * So this is NOT a modern SaaS card layout. Rounded corners are 2-3px, not 12. Type is 13px, not
+ * 16. Fields are filled grey rectangles, not outlined pills. Nothing floats. If our valuation card
+ * looked like a Stripe dashboard it would read as an alien pasted into their software, and the
+ * whole point of the mockup is that it reads as if it were already there.
+ *
+ * Colours are sampled from their own screens: navy #1F3864, orange #F5811F, slate chrome #5A6672,
+ * panel grey #EFF1F3, field fill #D6D6D6.
+ */
+
+:root {
+    --leap-navy: #1f3864;
+    --leap-navy-deep: #12305c;
+    --leap-orange: #f5811f;
+    --leap-slate: #5a6672;
+    --leap-modal-bar: #8a97a4;
+    --leap-panel: #eff1f3;
+    --leap-field: #d9dbdd;
+    --leap-line: #c6ccd2;
+    --leap-line-soft: #dfe3e7;
+    --leap-blue-heading: #1f6fb2;
+
+    --ink: #1f242b;
+    --ink-muted: #5c6570;
+    --ink-faint: #8d959e;
+    --canvas: #dfe3e7;
+
+    --clear: #1a7a4f;
+    --clear-bg: #e8f4ee;
+    --attention: #a63a1e;
+    --attention-bg: #fbeee9;
+    --blocked-bg: #fdf4e3;
+    --blocked-ink: #8a5a12;
+
+    --drawer: 420px;
+
+    --font-body: "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    min-width: 320px;
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--canvas);
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+    color: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+button,
+a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+ol,
+ul {
+    margin: 0;
+}
+
+ol,
+ul {
+    padding: 0;
+    list-style: none;
+}
+
+code {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+:focus-visible {
+    outline: 2px solid var(--leap-orange);
+    outline-offset: 1px;
+}
+
+/* ── Prototype chrome ──────────────────────────────────────────────────────────────── */
+
+.demo-nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 10px 20px;
+    background: #14181d;
+    color: #fff;
+    font-size: 13px;
+}
+
+.demo-nav-label {
+    font-weight: 600;
+    opacity: 0.82;
+}
+
+.demo-nav-items {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-wrap: wrap;
+}
+
+.demo-nav-items button,
+.demo-nav-items a {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 11px;
+    border: 0;
+    border-radius: 3px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.demo-nav-items button:hover,
+.demo-nav-items a:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+.demo-nav-items button.active {
+    background: var(--leap-orange);
+    color: #fff;
+    font-weight: 600;
+}
+
+.demo-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.matter-switch {
+    display: inline-flex;
+    padding: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.26);
+    border-radius: 3px;
+}
+
+.matter-switch button {
+    padding: 4px 11px;
+    border: 0;
+    border-radius: 2px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.matter-switch button.active {
+    background: #fff;
+    color: #14181d;
+}
+
+.api-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 3px;
+    background: transparent;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.api-toggle:hover {
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.api-toggle .count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 8px;
+    background: var(--leap-orange);
+    color: #fff;
+    font-size: 10px;
+}
+
+.demo-disclaimer {
+    padding: 8px 20px;
+    background: #eceff2;
+    border-bottom: 1px solid var(--leap-line);
+    color: var(--ink-muted);
+    font-size: 11px;
+    line-height: 16px;
+}
+
+.demo-disclaimer strong {
+    color: var(--ink);
+}
+
+/* ── The desktop ───────────────────────────────────────────────────────────────────── */
+
+.leap-desktop {
+    min-height: calc(100vh - 80px);
+    background: var(--canvas);
+}
+
+.app-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 8px;
+    height: 32px;
+    background: var(--leap-slate);
+    color: #fff;
+    font-size: 12px;
+}
+
+.titlebar-left,
+.titlebar-right {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.titlebar-right {
+    margin-left: auto;
+}
+
+.titlebar-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+}
+
+.chrome-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 10px;
+    border: 0;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    font-size: 12px;
+}
+
+.chrome-icon {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 24px;
+    border: 0;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.86);
+}
+
+.chrome-icon:hover {
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.chrome-user {
+    margin-right: 10px;
+    font-size: 12px;
+}
+
+.win-controls {
+    display: inline-flex;
+    margin-left: 8px;
+}
+
+.win-controls button {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 24px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+}
+
+.win-controls button:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.win-controls button:last-child:hover {
+    background: #c9382c;
+    color: #fff;
+}
+
+.app-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 12px;
+    background: #fff;
+    border-bottom: 1px solid var(--leap-line);
+}
+
+.leap-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.leap-word {
+    color: var(--leap-orange);
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.toolbar-search {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: 320px;
+    padding: 6px 10px;
+    border: 1px solid var(--leap-line);
+    border-radius: 2px;
+    color: var(--ink-faint);
+    font-size: 12px;
+}
+
+.toolbar-link {
+    color: var(--ink-faint);
+    font-size: 12px;
+}
+
+.toolbar-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.leap-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 13px;
+    border: 1px solid var(--leap-line);
+    border-radius: 2px;
+    background: #fff;
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.leap-button:hover {
+    background: var(--leap-panel);
+}
+
+.leap-button--primary {
+    border-color: var(--leap-navy);
+    background: var(--leap-navy);
+    color: #fff;
+}
+
+.leap-button--primary:hover {
+    background: #2a4a7d;
+}
+
+/* ── The matter list, sitting behind the windows ───────────────────────────────────── */
+
+.desktop-body {
+    position: relative;
+    padding: 0 0 40px;
+    min-height: 620px;
+}
+
+.matter-list {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    font-size: 12px;
+    color: var(--ink-muted);
+    user-select: none;
+}
+
+.matter-list th {
+    padding: 7px 14px;
+    background: var(--leap-panel);
+    border-bottom: 1px solid var(--leap-line);
+    color: var(--ink-muted);
+    font-size: 11px;
+    font-weight: 600;
+    text-align: left;
+}
+
+.matter-list td {
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--leap-line-soft);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.matter-list tr.is-active td {
+    background: #dbe6f4;
+    color: var(--ink);
+    font-weight: 600;
+}
+
+/* ── Windows ──────────────────────────────────────────────────────────────────────── */
+
+.leap-window {
+    background: #fff;
+    border: 1px solid #9aa3ad;
+    box-shadow: 0 10px 34px rgba(20, 30, 45, 0.28);
+}
+
+.leap-window--matter {
+    position: relative;
+    margin: -430px auto 0;
+    max-width: 1180px;
+    width: calc(100% - 40px);
+}
+
+.window-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 6px;
+    height: 30px;
+    background: var(--leap-navy);
+    color: #fff;
+    font-size: 12px;
+}
+
+.window-titlebar--modal {
+    background: var(--leap-modal-bar);
+}
+
+.window-nav {
+    display: inline-flex;
+}
+
+.window-title {
+    flex: 1;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.window-tabs {
+    display: flex;
+    gap: 0;
+    background: var(--leap-navy-deep);
+    overflow-x: auto;
+}
+
+.window-tabs button {
+    padding: 9px 15px;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.window-tabs button:hover {
+    color: #fff;
+}
+
+.window-tabs button.active {
+    border-bottom-color: var(--leap-orange);
+    color: #fff;
+    font-weight: 600;
+}
+
+/* ── The Estate Administration window ─────────────────────────────────────────────── */
+
+.leap-window--ea {
+    margin: 16px;
+    border-color: #9aa3ad;
+}
+
+.ea-body {
+    display: grid;
+    grid-template-columns: 258px 1fr;
+    min-height: 520px;
+}
+
+.ea-tree {
+    padding: 6px 0;
+    background: var(--leap-panel);
+    border-right: 1px solid var(--leap-line);
+    overflow-y: auto;
+}
+
+.tree-group-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    padding: 9px 12px 5px;
+    border: 0;
+    background: transparent;
+    color: var(--ink-muted);
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+}
+
+.tree-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 12px 8px 22px;
+    border: 0;
+    border-left: 3px solid transparent;
+    background: transparent;
+    color: var(--ink);
+    font-size: 12px;
+    text-align: left;
+}
+
+.tree-item:hover {
+    background: #e3e7eb;
+}
+
+/* Their selected tree item is a white row with an orange rule, not a filled pill. */
+.tree-item.active {
+    border-left-color: var(--leap-orange);
+    background: #fff;
+    font-weight: 600;
+}
+
+.tree-item--inert .tree-label {
+    color: var(--ink-faint);
+}
+
+.tree-icon {
+    display: grid;
+    place-items: center;
+    width: 16px;
+    color: var(--ink-muted);
+}
+
+.tree-item.active .tree-icon {
+    color: var(--leap-orange);
+}
+
+.tree-label {
+    flex: 1;
+}
+
+.tree-badge {
+    display: grid;
+    place-items: center;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 5px;
+    border-radius: 9px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.tree-badge--done {
+    background: var(--clear-bg);
+    color: var(--clear);
+}
+
+.tree-badge--wait {
+    background: var(--leap-navy);
+    color: #fff;
+}
+
+/* The badge that makes the argument: three pages in their own tree that cannot be completed
+ * until the property has a figure against it. */
+.tree-badge--blocked {
+    background: var(--blocked-bg);
+    color: var(--blocked-ink);
+}
+
+.tree-badge--new {
+    background: var(--leap-orange);
+    color: #fff;
+}
+
+.ea-panel {
+    padding: 16px 20px 22px;
+    overflow-x: auto;
+}
+
+.panel-heading {
+    margin-bottom: 16px;
+    color: var(--leap-blue-heading);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.ea-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--leap-panel);
+    border-top: 1px solid var(--leap-line);
+}
+
+/* ── Their form controls ──────────────────────────────────────────────────────────── */
+
+.ea-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 8px 28px;
+    margin-bottom: 16px;
+}
+
+.ea-field {
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    gap: 12px;
+    align-items: center;
+}
+
+.ea-field--wide {
+    grid-column: 1 / -1;
+}
+
+.ea-label {
+    color: var(--ink-muted);
+    font-size: 12px;
+}
+
+/* LEAP's fields are filled grey rectangles with a hairline border, not outlined white pills. */
+.ea-input {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 26px;
+    padding: 4px 8px;
+    border: 1px solid var(--leap-line);
+    border-radius: 2px;
+    background: var(--leap-field);
+    font-size: 12px;
+}
+
+.ea-input--readonly {
+    background: var(--leap-field);
+}
+
+.ea-input--editing {
+    padding: 0;
+    background: #fff;
+}
+
+.ea-input--editing input,
+.ea-input--editing select {
+    width: 100%;
+    padding: 5px 8px;
+    border: 0;
+    background: #fff;
+    font-size: 12px;
+}
+
+.inline-edit {
+    flex: none;
+    padding: 2px 8px;
+    border: 1px solid var(--leap-line);
+    border-radius: 2px;
+    background: #fff;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.field-error {
+    display: block;
+    min-height: 15px;
+    margin: 3px 0 0 202px;
+    color: var(--attention);
+    font-size: 11px;
+}
+
+.ea-check {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 7px 0;
+    border-top: 1px solid var(--leap-line-soft);
+}
+
+.ea-check-label {
+    color: var(--ink-muted);
+    font-size: 12px;
+}
+
+.ea-check-boxes,
+.ea-survivors {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--ink-muted);
+    font-size: 12px;
+}
+
+.ea-survivors {
+    flex-wrap: wrap;
+    gap: 6px 14px;
+}
+
+.ea-box {
+    display: inline-grid;
+    place-items: center;
+    width: 14px;
+    height: 14px;
+    border: 1px solid #8d959e;
+    border-radius: 1px;
+    background: #fff;
+    color: var(--leap-navy);
+}
+
+.ea-box.checked {
+    border-color: var(--leap-navy);
+}
+
+.ea-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 34px;
+    height: 20px;
+    border: 1px solid var(--leap-line);
+    background: var(--leap-field);
+    font-size: 11px;
+}
+
+.ea-address {
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    gap: 12px;
+    align-items: start;
+    margin: 12px 0;
+    padding: 3px;
+    border-radius: 2px;
+    transition: box-shadow 140ms ease;
+}
+
+.ea-address.linked {
+    box-shadow: 0 0 0 2px var(--leap-orange);
+}
+
+.ea-textarea {
+    min-height: 74px;
+    padding: 7px 9px;
+    border: 1px solid var(--leap-line);
+    border-radius: 2px;
+    background: var(--leap-field);
+    font-size: 12px;
+    line-height: 17px;
+}
+
+.ea-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin-top: 16px;
+    padding: 11px 13px;
+    border-left: 3px solid var(--leap-orange);
+    background: #fdf6ef;
+    color: var(--ink-muted);
+    font-size: 12px;
+    line-height: 17px;
+}
+
+.ea-note svg {
+    flex: none;
+    margin-top: 1px;
+    color: var(--leap-orange);
+}
+
+.ea-note strong {
+    color: var(--ink);
+}
+
+.ea-empty {
+    margin: 12px 0;
+    padding: 11px 13px;
+    background: var(--blocked-bg);
+    color: var(--blocked-ink);
+    font-size: 12px;
+    line-height: 17px;
+}
+
+/* ── Tables ───────────────────────────────────────────────────────────────────────── */
+
+.ea-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.ea-table th {
+    padding: 7px 10px;
+    background: var(--leap-panel);
+    border: 1px solid var(--leap-line);
+    color: var(--ink-muted);
+    font-size: 11px;
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.ea-table td {
+    padding: 8px 10px;
+    border: 1px solid var(--leap-line-soft);
+    vertical-align: top;
+}
+
+.ea-table .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.ea-table tr.is-selected td {
+    background: #dbe6f4;
+}
+
+.ea-table tr.is-new td {
+    background: #fdf6ef;
+}
+
+.ea-table tr.is-total td {
+    background: var(--leap-panel);
+    font-weight: 700;
+}
+
+.cell-empty {
+    color: var(--ink-faint);
+    font-style: italic;
+}
+
+.from-title,
+.source-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    background: #fdf1e5;
+    color: #a2560f;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.ea-detail {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--leap-line);
+}
+
+.detail-heading {
+    margin-bottom: 12px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.carried-from {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 6px 0 0 202px;
+    color: var(--ink-faint);
+    font-size: 11px;
+    line-height: 16px;
+}
+
+.carried-from svg {
+    flex: none;
+    margin-top: 2px;
+    color: var(--leap-orange);
+}
+
+.carried-from strong {
+    color: var(--ink-muted);
+}
+
+/* ── The split: panel body plus the sidebar card ──────────────────────────────────── */
+
+.ea-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 292px;
+    gap: 20px;
+    align-items: start;
+}
+
+.ea-main {
+    min-width: 0;
+}
+
+/* Actions in LEAP hang off sidebar cards, never hero buttons. This is where the whole
+ * integration lives, and it looks like the cards already in their sidebar. */
+.side-card {
+    border: 1px solid var(--leap-line);
+    border-radius: 2px;
+    background: #fff;
+}
+
+.side-card--sail .side-card-head {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 12px;
+    background: var(--leap-navy);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.side-card-body {
+    padding: 12px;
+}
+
+.side-card-lede {
+    margin-bottom: 12px;
+    color: var(--ink-muted);
+    font-size: 12px;
+    line-height: 17px;
+}
+
+.side-card-lede strong,
+.side-card-note strong {
+    color: var(--ink);
+}
+
+.side-card-action {
+    width: 100%;
+    justify-content: center;
+}
+
+.side-card-note {
+    margin-top: 9px;
+    color: var(--ink-faint);
+    font-size: 11px;
+    line-height: 16px;
+}
+
+.side-figure {
+    display: grid;
+    gap: 3px;
+    margin-bottom: 12px;
+    padding: 11px;
+    border-radius: 2px;
+    background: var(--leap-panel);
+    transition: box-shadow 140ms ease;
+}
+
+.side-figure.linked,
+.tile.linked,
+[data-link-key].linked {
+    box-shadow: 0 0 0 2px var(--leap-orange);
+}
+
+.side-figure-label {
+    color: var(--ink-faint);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.side-figure strong {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.side-figure-range {
+    color: var(--ink-muted);
+    font-size: 11px;
+}
+
+.confidence {
+    display: grid;
+    gap: 4px;
+    margin-top: 6px;
+    color: var(--ink-muted);
+    font-size: 11px;
+}
+
+.confidence-track {
+    display: block;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.confidence-fill {
+    display: block;
+    height: 100%;
+    background: var(--leap-navy);
+    transition: width 260ms ease;
+}
+
+.side-refine {
+    margin-bottom: 12px;
+    padding: 10px;
+    border: 1px dashed var(--leap-line);
+    border-radius: 2px;
+}
+
+.side-refine p {
+    margin-bottom: 9px;
+    color: var(--ink-muted);
+    font-size: 11px;
+    line-height: 16px;
+}
+
+.side-exposure {
+    margin-bottom: 12px;
+    padding: 10px;
+    border-radius: 2px;
+    background: var(--clear-bg);
+    color: var(--ink-muted);
+    font-size: 11px;
+    line-height: 16px;
+}
+
+.side-exposure strong {
+    color: var(--ink);
+}
+
+.side-exposure--wide {
+    background: var(--blocked-bg);
+    color: var(--blocked-ink);
+}
+
+.side-exposure--wide strong {
+    color: var(--blocked-ink);
+}
+
+.side-upgrade {
+    padding-top: 12px;
+    border-top: 1px solid var(--leap-line-soft);
+}
+
+.side-upgrade-head {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.side-upgrade-copy,
+.side-upgrade-wait {
+    margin-bottom: 10px;
+    color: var(--ink-muted);
+    font-size: 11px;
+    line-height: 16px;
+}
+
+.side-upgrade-done {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: var(--clear);
+    font-size: 11px;
+    line-height: 16px;
+}
+
+.side-upgrade-done svg {
+    flex: none;
+    margin-top: 2px;
+}
+
+/* ── Stages ───────────────────────────────────────────────────────────────────────── */
+
+.stages {
+    display: grid;
+    gap: 8px;
+}
+
+.stage {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--ink-faint);
+    font-size: 11px;
+}
+
+.stage.active {
+    color: var(--ink);
+}
+
+.stage.done {
+    color: var(--clear);
+}
+
+.stage-marker {
+    display: grid;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid currentColor;
+    border-radius: 999px;
+    opacity: 0.5;
+}
+
+.stage.done .stage-marker {
+    background: var(--clear);
+    border-color: var(--clear);
+    color: #fff;
+    opacity: 1;
+}
+
+/* ── Title check ─────────────────────────────────────────────────────────────────── */
+
+.title-result {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--leap-line);
+}
+
+.title-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.title-head h3 {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.title-basis {
+    margin-top: 5px;
+    color: var(--ink-muted);
+    font-size: 11px;
+    line-height: 16px;
+}
+
+.checks-run {
+    padding: 3px 9px;
+    border-radius: 2px;
+    background: var(--clear-bg);
+    color: var(--clear);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.checks-run.has-raised {
+    background: var(--attention-bg);
+    color: var(--attention);
+}
+
+.tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.tile {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 11px;
+    border: 1px solid var(--leap-line-soft);
+    border-radius: 2px;
+    transition: box-shadow 140ms ease;
+}
+
+.tile-label {
+    color: var(--ink-faint);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.tile-value {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 19px;
+}
+
+.tile-consequence {
+    color: var(--ink-muted);
+    font-size: 11px;
+    line-height: 16px;
+}
+
+.tile--clear {
+    border-color: rgba(26, 122, 79, 0.34);
+    background: var(--clear-bg);
+}
+
+.tile--attention {
+    border-color: rgba(166, 58, 30, 0.34);
+    background: var(--attention-bg);
+}
+
+/* The share is the one number on this screen that is NOT a fact from the register, so it gets
+ * the loudest treatment on the page. */
+.assumption {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin-top: 12px;
+    padding: 11px 13px;
+    border-left: 3px solid var(--attention);
+    background: var(--attention-bg);
+    color: var(--attention);
+    font-size: 12px;
+    line-height: 17px;
+}
+
+.assumption svg {
+    flex: none;
+    margin-top: 1px;
+}
+
+/* ── What happens now ────────────────────────────────────────────────────────────── */
+
+.next-block {
+    margin-bottom: 18px;
+    padding: 16px 18px;
+    border: 1px solid var(--leap-line);
+    border-left: 3px solid var(--leap-orange);
+    border-radius: 2px;
+    background: #fdf6ef;
+}
+
+.next-heading {
+    margin-bottom: 14px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.next-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.next-steps li {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 10px;
+    align-items: start;
+}
+
+.next-number {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--leap-navy);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.next-steps strong {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 12px;
+}
+
+.next-steps p {
+    color: var(--ink-muted);
+    font-size: 11px;
+    line-height: 16px;
+}
+
+.next-close {
+    padding-top: 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.09);
+    color: var(--ink-muted);
+    font-size: 12px;
+    line-height: 18px;
+}
+
+.next-close strong {
+    color: var(--ink);
+}
+
+.disclosure {
+    margin-top: 10px;
+    border: 1px solid var(--leap-line-soft);
+    border-radius: 2px;
+}
+
+.disclosure summary {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 9px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.summary-provenance {
+    color: var(--ink-faint);
+    font-size: 11px;
+    font-weight: 400;
+}
+
+.findings {
+    display: grid;
+    gap: 1px;
+    background: var(--leap-line-soft);
+    border-top: 1px solid var(--leap-line-soft);
+}
+
+.finding {
+    display: grid;
+    grid-template-columns: 8px 1fr;
+    gap: 10px;
+    align-items: start;
+    padding: 10px 12px;
+    background: #fff;
+    color: var(--ink-muted);
+    font-size: 12px;
+    line-height: 17px;
+}
+
+.finding-mark {
+    width: 8px;
+    height: 8px;
+    margin-top: 5px;
+    border-radius: 999px;
+    background: var(--leap-line);
+}
+
+.finding--positive .finding-mark {
+    background: var(--clear);
+}
+
+.finding--negative .finding-mark {
+    background: var(--attention);
+}
+
+.finding-category {
+    display: inline-block;
+    margin-right: 7px;
+    padding: 1px 6px;
+    border-radius: 2px;
+    background: var(--leap-panel);
+    color: var(--ink-faint);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.register-group {
+    padding: 2px 12px 12px;
+    border-top: 1px solid var(--leap-line-soft);
+}
+
+.register-group h4 {
+    margin: 12px 0 3px;
+    color: var(--ink-faint);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.register-entry {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 7px;
+    padding: 8px 0;
+    border-top: 1px solid var(--leap-line-soft);
+    color: var(--ink-muted);
+    font-size: 11px;
+    line-height: 16px;
+}
+
+.register-entry--empty {
+    grid-template-columns: 1fr;
+}
+
+.entry-number {
+    color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+}
+
+.entry-beneficiary {
+    display: block;
+    margin-top: 2px;
+    color: var(--ink);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.register-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 12px;
+    color: var(--leap-blue-heading);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 10px 0 0 202px;
+}
+
+.fact {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    padding: 4px 9px;
+    border: 1px solid var(--leap-line-soft);
+    border-radius: 2px;
+    color: var(--ink-muted);
+    font-size: 11px;
+}
+
+.fact strong {
+    color: var(--ink);
+}
+
+.fact--supplied {
+    border-color: var(--leap-orange);
+    background: #fdf6ef;
+}
+
+.fact-source {
+    color: var(--ink-faint);
+    font-size: 10px;
+    font-style: italic;
+}
+
+/* ── Blocked panels ──────────────────────────────────────────────────────────────── */
+
+.blocked-panel {
+    display: grid;
+    gap: 12px;
+    justify-items: start;
+    max-width: 640px;
+    padding: 18px 20px;
+    border: 1px solid var(--leap-line);
+    border-left: 3px solid var(--blocked-ink);
+    border-radius: 2px;
+    background: var(--blocked-bg);
+}
+
+.blocked-panel--quiet {
+    border-left-color: var(--leap-line);
+    background: var(--leap-panel);
+}
+
+.blocked-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--blocked-ink);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.blocked-panel p {
+    color: var(--ink-muted);
+    font-size: 12px;
+    line-height: 18px;
+}
+
+.blocked-panel strong {
+    color: var(--ink);
+}
+
+/* ── The calculation ─────────────────────────────────────────────────────────────── */
+
+.calc-panel {
+    max-width: 660px;
+    border: 1px solid var(--leap-line);
+    border-radius: 2px;
+    background: #fff;
+}
+
+.calc-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--leap-line-soft);
+    font-size: 12px;
+}
+
+.calc-row:last-child {
+    border-bottom: 0;
+}
+
+.calc-row span {
+    color: var(--ink-muted);
+}
+
+.calc-row em {
+    color: var(--ink-faint);
+    font-size: 11px;
+}
+
+.calc-row strong {
+    font-variant-numeric: tabular-nums;
+}
+
+.calc-row.is-negative strong {
+    color: var(--attention);
+}
+
+.calc-row.is-total {
+    background: var(--leap-panel);
+    font-weight: 700;
+}
+
+.calc-row.is-total span {
+    color: var(--ink);
+}
+
+.calc-row.is-grand {
+    background: var(--leap-navy);
+    color: #fff;
+    font-size: 14px;
+}
+
+.calc-row.is-grand span,
+.calc-row.is-grand strong {
+    color: #fff;
+    font-weight: 700;
+}
+
+.calc-caption {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin-top: 12px;
+    max-width: 660px;
+    color: var(--ink-muted);
+    font-size: 12px;
+    line-height: 17px;
+}
+
+.calc-caption svg {
+    flex: none;
+    margin-top: 2px;
+    color: var(--leap-orange);
+}
+
+.calc-caption strong {
+    color: var(--ink);
+}
+
+/* What the estimate's range is worth in tax — the argument for the upgrade, in one bar. */
+.exposure-panel {
+    margin-top: 18px;
+    max-width: 660px;
+    padding: 16px 18px;
+    border: 1px solid var(--leap-line);
+    border-left: 3px solid var(--leap-orange);
+    border-radius: 2px;
+    background: #fdf6ef;
+}
+
+.exposure-panel--wide {
+    border-left-color: var(--blocked-ink);
+    background: var(--blocked-bg);
+}
+
+.exposure-panel--clear {
+    border-left-color: var(--clear);
+    background: var(--clear-bg);
+}
+
+.exposure-panel h3 {
+    margin-bottom: 12px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.exposure-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    border-radius: 2px;
+    background: #fff;
+}
+
+.exposure-bar span {
+    display: grid;
+    gap: 2px;
+}
+
+.exposure-bar em {
+    color: var(--ink-faint);
+    font-size: 11px;
+    font-style: normal;
+}
+
+.exposure-bar strong {
+    font-size: 18px;
+    font-variant-numeric: tabular-nums;
+}
+
+.exposure-spread {
+    padding: 4px 10px;
+    border-radius: 2px;
+    background: var(--leap-navy);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.exposure-panel p {
+    color: var(--ink-muted);
+    font-size: 12px;
+    line-height: 18px;
+}
+
+.exposure-panel strong {
+    color: var(--ink);
+}
+
+/* ── Submission forms ────────────────────────────────────────────────────────────── */
+
+.forms-verdict {
+    max-width: 660px;
+    margin-bottom: 16px;
+    padding: 14px 16px;
+    border-left: 3px solid var(--clear);
+    border-radius: 2px;
+    background: var(--clear-bg);
+}
+
+.forms-verdict--required {
+    border-left-color: var(--blocked-ink);
+    background: var(--blocked-bg);
+}
+
+.forms-verdict strong {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.forms-verdict p {
+    color: var(--ink-muted);
+    font-size: 12px;
+    line-height: 17px;
+}
+
+.sale-prompt {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    padding: 16px 18px;
+    border: 1px solid var(--leap-line);
+    border-radius: 2px;
+    background: var(--leap-panel);
+}
+
+.sale-prompt h3 {
+    margin-bottom: 5px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.sale-prompt p {
+    max-width: 62ch;
+    color: var(--ink-muted);
+    font-size: 12px;
+    line-height: 17px;
+}
+
+/* ── The Sale of Estate window ───────────────────────────────────────────────────── */
+
+.sale-window {
+    padding: 16px 20px 22px;
+}
+
+.sale-lede {
+    max-width: 76ch;
+    margin-bottom: 16px;
+    color: var(--ink-muted);
+    font-size: 12px;
+    line-height: 18px;
+}
+
+.sale-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 16px;
+    margin-bottom: 18px;
+    padding: 14px 16px;
+    border: 1px solid var(--leap-line);
+    border-radius: 2px;
+    background: var(--leap-panel);
+}
+
+.sale-summary > div {
+    display: grid;
+    gap: 3px;
+}
+
+.sale-summary .label {
+    color: var(--ink-faint);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.sale-summary strong {
+    font-size: 14px;
+}
+
+.cell-ref {
+    color: var(--ink-faint);
+    font-size: 11px;
+}
+
+.sale-cta,
+.sale-progress {
+    display: grid;
+    gap: 12px;
+    justify-items: start;
+    padding: 16px 18px;
+    border: 1px dashed var(--leap-line);
+    border-radius: 2px;
+}
+
+.sale-cta p {
+    color: var(--ink-muted);
+    font-size: 12px;
+}
+
+.quote-panel {
+    display: grid;
+    gap: 14px;
+    justify-items: start;
+}
+
+.quote-panel .ea-table {
+    width: 100%;
+}
+
+.instructed {
+    width: 100%;
+    padding: 14px 16px;
+    border-left: 3px solid var(--clear);
+    border-radius: 2px;
+    background: var(--clear-bg);
+}
+
+.instructed strong {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    color: var(--clear);
+    font-size: 13px;
+}
+
+.instructed p {
+    margin-bottom: 9px;
+    color: var(--ink-muted);
+    font-size: 12px;
+    line-height: 17px;
+}
+
+.onboarding-url {
+    display: block;
+    padding: 8px 10px;
+    border-radius: 2px;
+    background: #fff;
+    color: var(--ink-muted);
+    font-size: 11px;
+    word-break: break-all;
+}
+
+/* ── Modal ───────────────────────────────────────────────────────────────────────── */
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(20, 30, 45, 0.45);
+    overflow: auto;
+}
+
+.modal {
+    width: min(560px, 100%);
+    border: 1px solid #9aa3ad;
+    background: #fff;
+    box-shadow: 0 18px 48px rgba(20, 30, 45, 0.35);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 0 6px 0 14px;
+    height: 30px;
+    background: var(--leap-modal-bar);
+    color: #fff;
+}
+
+.modal-header h2 {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.close-button {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 24px;
+    border: 0;
+    background: transparent;
+    color: #fff;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.close-button:hover {
+    background: #c9382c;
+}
+
+.modal-body {
+    padding: 16px 18px 6px;
+}
+
+.modal-lede {
+    margin-bottom: 16px;
+    color: var(--ink-muted);
+    font-size: 12px;
+    line-height: 17px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--leap-panel);
+    border-top: 1px solid var(--leap-line);
+}
+
+/* ── Toast ───────────────────────────────────────────────────────────────────────── */
+
+.toast {
+    position: fixed;
+    bottom: 22px;
+    left: 50%;
+    z-index: 70;
+    padding: 10px 18px;
+    border-radius: 2px;
+    background: var(--leap-navy);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    transform: translateX(-50%);
+    box-shadow: 0 10px 26px rgba(20, 30, 45, 0.32);
+}
+
+/* ── API drawer ──────────────────────────────────────────────────────────────────── */
+
+.api-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    width: min(var(--drawer), 100vw);
+    background: #131a22;
+    color: #e5e9ee;
+    box-shadow: -16px 0 44px rgba(20, 30, 45, 0.36);
+}
+
+.drawer-head {
+    padding: 16px 18px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.drawer-head-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.drawer-head h2 {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.drawer-close {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border: 0;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 15px;
+    line-height: 1;
+}
+
+.drawer-route {
+    margin-top: 7px;
+    color: rgba(229, 233, 238, 0.7);
+    font-size: 11px;
+    line-height: 16px;
+}
+
+.drawer-route strong {
+    color: #fff;
+}
+
+.drawer-auth {
+    margin-top: 9px;
+    padding: 8px 10px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.07);
+    color: rgba(229, 233, 238, 0.72);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    line-height: 15px;
+    word-break: break-all;
+}
+
+.drawer-body {
+    flex: 1;
+    padding: 14px 18px 26px;
+    overflow: auto;
+}
+
+.drawer-empty,
+.drawer-note {
+    color: rgba(229, 233, 238, 0.62);
+    font-size: 11px;
+    line-height: 17px;
+}
+
+.drawer-note {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.drawer-note strong {
+    color: #fff;
+}
+
+.api-call {
+    margin-bottom: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.api-call-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 11px;
+    background: rgba(255, 255, 255, 0.05);
+    font-family: var(--font-mono);
+    font-size: 11px;
+}
+
+.api-method {
+    padding: 2px 6px;
+    border-radius: 2px;
+    background: var(--leap-orange);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.api-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: auto;
+    color: rgba(229, 233, 238, 0.6);
+    font-size: 10px;
+}
+
+.api-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: #4cc38a;
+}
+
+.api-block summary {
+    padding: 8px 11px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    color: rgba(229, 233, 238, 0.72);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.api-block pre {
+    margin: 0;
+    padding: 0 11px 11px;
+    overflow: auto;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    line-height: 15px;
+}
+
+.json-line {
+    display: block;
+    padding: 0 4px;
+    margin: 0 -4px;
+    border-radius: 2px;
+    white-space: pre;
+}
+
+.json-line.linked {
+    background: rgba(245, 129, 31, 0.28);
+}
+
+.tok-key {
+    color: #8fc9ff;
+}
+
+.tok-string {
+    color: #ffcf8f;
+}
+
+.tok-number {
+    color: #b9e58b;
+}
+
+.tok-bool,
+.tok-null {
+    color: #ff9ec9;
+}
+
+.tok-punct {
+    color: rgba(229, 233, 238, 0.45);
+}
+
+/* ── Guide shell ─────────────────────────────────────────────────────────────────── */
+
+.guide-shell {
+    padding: 0 24px 70px;
+    background: #f4f6f8;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 1080px) {
+    .ea-split {
+        grid-template-columns: 1fr;
+    }
+
+    .leap-window--matter {
+        margin-top: -300px;
+    }
+}
+
+@media (max-width: 860px) {
+    .ea-body {
+        grid-template-columns: 1fr;
+    }
+
+    .ea-tree {
+        border-right: 0;
+        border-bottom: 1px solid var(--leap-line);
+    }
+
+    .ea-field,
+    .ea-address {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+
+    .facts,
+    .carried-from,
+    .field-error {
+        margin-left: 0;
+    }
+
+    .titlebar-title {
+        display: none;
+    }
+
+    .leap-window--matter {
+        margin-top: -200px;
+        width: calc(100% - 16px);
+    }
+}
+
+/* ── The s.160 declaration ───────────────────────────────────────────────────────── */
+
+/* Deliberately the plainest block on the page. It is a quotation from a document, and dressing it
+ * up would undercut the one thing it is for: showing a practitioner the exact words. */
+.declaration {
+    margin-bottom: 18px;
+    border: 1px solid var(--leap-line);
+    border-radius: 2px;
+    background: #fff;
+}
+
+.declaration-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--leap-line-soft);
+    background: var(--leap-panel);
+}
+
+.declaration-head h3 {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.declaration-flag {
+    color: var(--ink-faint);
+    font-size: 11px;
+}
+
+.declaration-quote {
+    margin: 0;
+    padding: 15px 16px 13px;
+    border-left: 3px solid var(--leap-navy);
+}
+
+.declaration-quote p {
+    color: var(--ink);
+    font-size: 12px;
+    line-height: 19px;
+}
+
+.declaration-quote p + p {
+    margin-top: 10px;
+}
+
+.declaration-facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px 18px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--leap-line-soft);
+    background: #fafbfc;
+}
+
+.declaration-facts span {
+    font-size: 11px;
+}
+
+.declaration-facts em {
+    display: block;
+    color: var(--ink-faint);
+    font-size: 10px;
+    font-style: normal;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.declaration-close {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--leap-line-soft);
+    color: var(--ink-muted);
+    font-size: 12px;
+    line-height: 18px;
+}
+
+.declaration-close svg {
+    flex: none;
+    margin-top: 2px;
+}
+
+.declaration-close strong {
+    color: var(--ink);
+}
+
+/* ── Loss on sale, s.191 ─────────────────────────────────────────────────────────── */
+
+.s191 {
+    margin-bottom: 18px;
+    padding: 15px 16px;
+    border: 1px solid var(--leap-line);
+    border-left: 3px solid var(--clear);
+    border-radius: 2px;
+    background: var(--clear-bg);
+}
+
+.s191 h3 {
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.s191 > p {
+    color: var(--ink-muted);
+    font-size: 12px;
+    line-height: 18px;
+}
+
+.s191 strong {
+    color: var(--ink);
+}
+
+.s191-sum {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    margin: 12px 0;
+    padding: 11px 13px;
+    border: 1px solid rgba(26, 122, 79, 0.28);
+    border-radius: 2px;
+    background: #fff;
+    font-size: 12px;
+}
+
+.s191-sum em {
+    display: block;
+    color: var(--ink-faint);
+    font-size: 10px;
+    font-style: normal;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.s191-arrow {
+    color: var(--ink-faint);
+}
+
+.s191-relief strong {
+    color: var(--clear);
+    font-size: 15px;
+}
+
+.s191-note {
+    color: var(--ink-muted);
+    font-size: 11px;
+    line-height: 17px;
+}
+
+/* ── Assets → Property services ──────────────────────────────────────────────────── */
+
+.svc-provenance {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin-bottom: 14px;
+    padding: 10px 13px;
+    border: 1px solid var(--leap-line-soft);
+    border-radius: 2px;
+    background: var(--leap-panel);
+    color: var(--ink-muted);
+    font-size: 12px;
+    line-height: 18px;
+}
+
+.svc-provenance svg {
+    flex: none;
+    margin-top: 1px;
+}
+
+.svc-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.svc-stat {
+    padding: 12px 14px;
+    border: 1px solid var(--leap-line);
+    border-radius: 2px;
+    background: #fff;
+}
+
+.svc-stat--hero {
+    border-left: 3px solid var(--clear);
+    background: var(--clear-bg);
+}
+
+.svc-stat-label {
+    display: block;
+    color: var(--ink-faint);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.svc-stat strong {
+    display: block;
+    margin: 3px 0 2px;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.svc-stat--hero strong {
+    color: var(--clear);
+}
+
+.svc-stat-note {
+    color: var(--ink-muted);
+    font-size: 11px;
+    line-height: 15px;
+}
+
+.svc-funding {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin-bottom: 18px;
+    padding: 11px 13px;
+    border-left: 3px solid var(--leap-navy);
+    background: #eef3fa;
+    color: var(--ink-muted);
+    font-size: 12px;
+    line-height: 18px;
+}
+
+.svc-funding svg {
+    flex: none;
+    margin-top: 2px;
+}
+
+.svc-funding strong {
+    color: var(--ink);
+}
+
+.svc-group-heading {
+    margin-bottom: 9px;
+    color: var(--leap-blue-heading);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.svc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(258px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.svc {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 12px 13px;
+    border: 1px solid var(--leap-line);
+    border-radius: 2px;
+    background: #fff;
+}
+
+.svc--live {
+    border-left: 3px solid var(--clear);
+}
+
+.svc--quoted {
+    border-left: 3px solid var(--leap-orange);
+    background: #fdf6ef;
+}
+
+.svc-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.svc-label {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.svc-status {
+    flex: none;
+    white-space: nowrap;
+    color: var(--ink-faint);
+    font-size: 10px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.svc-status--done,
+.svc-status--instructed,
+.svc-status--booked {
+    color: var(--clear);
+}
+
+.svc-status--quoted {
+    color: var(--leap-orange);
+}
+
+/* The dates behind the badge. "Instructed" on its own does not answer "where is the clearance up
+ * to", which is the only question anyone asks about a job on a file. */
+.svc-timeline {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 8px 0 0;
+    border-top: 1px solid var(--leap-rule);
+    display: grid;
+    gap: 3px;
+}
+
+.svc-timeline li {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 11px;
+    color: var(--ink-faint);
+}
+
+.svc-timeline li.is-now {
+    color: var(--ink);
+    font-weight: 600;
+}
+
+.svc-timeline-date {
+    font-variant-numeric: tabular-nums;
+}
+
+.svc-problem {
+    color: var(--ink-muted);
+    font-size: 11px;
+    line-height: 16px;
+}
+
+/* Turnaround left, price right — but a quoted price carries a qualifier and the two will not
+ * always sit on one line at this width, so the price drops under rather than squeezing the
+ * turnaround into a two-line stub beside it. */
+.svc-meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 2px 10px;
+    padding-top: 7px;
+    border-top: 1px solid var(--leap-line-soft);
+    color: var(--ink-muted);
+    font-size: 11px;
+}
+
+.svc-meta > span:first-child {
+    white-space: nowrap;
+}
+
+.svc-meta svg {
+    vertical-align: -1px;
+    margin-right: 3px;
+}
+
+.svc-price {
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.svc-supplier {
+    color: var(--ink-faint);
+    font-size: 11px;
+}
+
+.svc-action {
+    align-self: flex-start;
+    margin-top: 2px;
+}
+
+.svc-pending {
+    align-self: flex-start;
+    margin-top: 2px;
+    color: var(--ink-muted);
+    font-size: 11px;
+}
+
+.svc-pending svg {
+    vertical-align: -2px;
+    margin-right: 4px;
+}
+
+/* Named rather than implied: the operation is real, the endpoint is not. */
+.svc-gap {
+    padding: 14px 16px;
+    border: 1px dashed var(--leap-line);
+    border-radius: 2px;
+    background: var(--leap-panel);
+}
+
+.svc-gap p {
+    margin-bottom: 11px;
+    color: var(--ink-muted);
+    font-size: 12px;
+    line-height: 18px;
+}
+
+.svc-gap strong {
+    color: var(--ink);
+}
+
+.svc-gap code {
+    padding: 1px 5px;
+    border-radius: 2px;
+    background: #fff;
+    border: 1px solid var(--leap-line-soft);
+    font-family: var(--font-mono);
+    font-size: 11px;
+}
+
+.s191-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.s191-head h3 {
+    margin-bottom: 0;
+}
+
+/* The figures below are an illustration, not a completed sale. Saying so in the header is cheaper
+ * than a reader deciding halfway down that the panel is claiming something it is not. */
+.s191-flag {
+    flex: none;
+    color: var(--ink-faint);
+    font-size: 11px;
+}
+
+/* ── The billing choice ──────────────────────────────────────────────────────────── */
+
+/* This sits above the services, not below them, because "who pays and when" is the question a fee
+ * earner has before they will read a list of chargeable work at all. */
+.svc-billing {
+    margin-bottom: 14px;
+    padding: 13px 15px;
+    border: 1px solid var(--leap-line);
+    border-left: 3px solid var(--leap-navy);
+    border-radius: 2px;
+    background: #eef3fa;
+}
+
+.svc-billing-head {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--ink-faint);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.svc-billing-choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.svc-choice {
+    padding: 7px 14px;
+    border: 1px solid var(--leap-line);
+    border-radius: 2px;
+    background: #fff;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.svc-choice:hover {
+    border-color: var(--leap-navy);
+}
+
+.svc-choice--on {
+    border-color: var(--clear);
+    background: var(--clear-bg);
+    color: var(--clear);
+    font-weight: 600;
+}
+
+.svc-billing-note {
+    margin-top: 10px;
+    color: var(--ink-muted);
+    font-size: 12px;
+    line-height: 18px;
+}
+
+.svc-billing-note strong {
+    color: var(--ink);
+}
+
+/* ── The valuation figures ───────────────────────────────────────────────────────── */
+
+/* Two figures, and the date-of-death one leads because it is the one the IHT400 needs. */
+.side-figure--lead {
+    border-left: 3px solid var(--clear);
+    background: var(--clear-bg);
+}
+
+.side-figure--lead strong {
+    color: var(--clear);
+}
+
+.side-card-body > .side-figure + .side-figure {
+    margin-top: 9px;
+}
+
+/* ── Embedded in a slide ─────────────────────────────────────────────────────────── */
+
+/* In a deck frame the desktop wallpaper, the matter list behind and the outer matter window are
+ * all scenery the slide does not need — it wants the Estate Administration window and nothing
+ * else. The app underneath is unchanged; only the staging is. */
+body.is-embed,
+body.is-embed .leap-desktop {
+    background: var(--leap-panel);
+    min-height: 0;
+}
+
+body.is-embed .app-titlebar,
+body.is-embed .app-toolbar,
+body.is-embed .matter-list,
+body.is-embed .leap-window--matter > .window-titlebar,
+body.is-embed .window-tabs {
+    display: none;
+}
+
+body.is-embed .desktop-body {
+    display: block;
+    padding: 0;
+}
+
+body.is-embed .leap-window--matter,
+body.is-embed .leap-window--ea {
+    position: static;
+    inset: auto;
+    width: 100%;
+    max-width: none;
+    height: auto;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+body.is-embed .leap-window--ea > .window-titlebar {
+    display: flex;
+}
+
+body.is-embed .ea-body {
+    min-height: 470px;
+}
+
+/* Nothing inside the frame should keep a desktop-sized fixed width, or the slide gets a band of
+ * empty wallpaper down its right-hand side. */
+body.is-embed .leap-desktop,
+body.is-embed .desktop-body,
+body.is-embed .matter-window {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+}
+
+body.is-embed .ea-footer {
+    padding-bottom: 10px;
+}
+
+/* The estimate, offered underneath the valuation rather than instead of it. */
+.side-alt {
+    margin-top: 13px;
+    padding-top: 12px;
+    border-top: 1px solid var(--leap-line-soft);
+}
+
+.side-booked {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 11px 13px;
+    border-left: 3px solid var(--clear);
+    border-radius: 2px;
+    background: var(--clear-bg);
+    color: var(--ink);
+    font-size: 12px;
+    line-height: 18px;
+}
+
+.side-booked svg {
+    flex: none;
+    margin-top: 2px;
+    color: var(--clear);
+}
+
+/* ── The title extract, folded ───────────────────────────────────────────────────── */
+
+/* Open, the register extract was the longest thing on the page and pushed the valuation off the
+ * top of the frame. The summary carries the only line a practitioner needs at a glance — how many
+ * things on the title change the estate — and the detail is one click away. */
+.title-fold {
+    margin-bottom: 18px;
+    border: 1px solid var(--leap-line);
+    border-left: 3px solid var(--leap-blue-heading);
+    border-radius: 2px;
+    background: #fff;
+}
+
+.title-fold > summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 15px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.title-fold > summary::-webkit-details-marker {
+    display: none;
+}
+
+.title-fold > summary:hover {
+    background: var(--leap-panel);
+}
+
+.title-fold-lead {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.title-fold-chevron {
+    flex: none;
+    color: var(--ink-faint);
+    transition: transform 120ms ease-out;
+}
+
+.title-fold[open] > summary .title-fold-chevron {
+    transform: rotate(180deg);
+}
+
+.title-fold[open] > summary {
+    border-bottom: 1px solid var(--leap-line-soft);
+}
+
+/* The extract's own padding, now that it sits inside the fold rather than loose on the page. */
+.title-fold > .title-head,
+.title-fold > .title-basis,
+.title-fold > .tiles,
+.title-fold > .assumption,
+.title-fold > .disclosure {
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.title-fold > .title-head {
+    margin-top: 14px;
+}
+
+.title-fold > .disclosure:last-of-type {
+    margin-bottom: 15px;
+}
+
+/* ── Coach marks, embed only ─────────────────────────────────────────────────────── */
+
+/* Sail's own palette, deliberately. Everything else on this screen is LEAP's — their navy, their
+ * orange, their greys — so an annotation in marine and azure reads as ours laid over their
+ * software rather than as a control their product owns. LEAP's orange was the one colour that
+ * could not be used here for exactly that reason.
+ *
+ * Sizing is the other half. The frame renders at desktop width and is then CSS-scaled to about
+ * 0.62 for the slide, so anything set at LEAP's native 11px arrives at seven. Everything in this
+ * block is sized for the scale it will be seen at, not the page it is written on. */
+:root {
+    --sail-navy: #0e1e47;
+    --sail-marine: #049dcc;
+    --sail-azure: #35b8be;
+}
+
+.coach-tip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding: 9px 17px 9px 15px;
+    border-radius: 999px;
+    background: linear-gradient(101deg, var(--sail-marine), var(--sail-azure));
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    box-shadow: 0 8px 22px rgba(4, 157, 204, .38);
+    animation: coach-bob 2.4s ease-in-out infinite;
+}
+
+.coach-arrow {
+    display: inline-flex;
+    transform: rotate(90deg) scale(1.6);
+    transform-origin: center;
+}
+
+.coach-arrow svg {
+    display: block;
+}
+
+@keyframes coach-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+/* The target gets three things: a standing azure halo so it is findable at a glance, a ripple that
+ * keeps repeating, and a cursor that drifts in and taps it. The cursor is the part that makes the
+ * frame read as something you drive rather than something you look at. */
+.is-coached {
+    position: relative;
+    box-shadow: 0 0 0 3px rgba(53, 184, 190, .9), 0 0 0 7px rgba(53, 184, 190, .22);
+    border-radius: 3px;
+}
+
+.is-coached::after {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: 5px;
+    border: 2px solid var(--sail-azure);
+    opacity: 0;
+    pointer-events: none;
+    animation: coach-ripple 2.4s cubic-bezier(.22, .8, .3, 1) infinite;
+}
+
+@keyframes coach-ripple {
+    0%   { transform: scale(1); opacity: .85; }
+    55%  { transform: scale(1.14); opacity: 0; }
+    100% { transform: scale(1.14); opacity: 0; }
+}
+
+.is-coached::before {
+    content: "";
+    position: absolute;
+    right: -14px;
+    bottom: -20px;
+    width: 30px;
+    height: 30px;
+    background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M5%202.5l13.2%208.4-5.7%201.4%202.8%206.9-2.8%201.1-2.8-6.9-4.7%204.2z%22%20fill%3D%22%23ffffff%22%20stroke%3D%22%230e1e47%22%20stroke-width%3D%221.5%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E") no-repeat center / contain;
+    filter: drop-shadow(0 3px 5px rgba(6, 16, 40, .35));
+    pointer-events: none;
+    z-index: 2;
+    animation: coach-cursor 2.4s ease-in-out infinite;
+}
+
+/* Drift in, press, lift, hold — the shape of somebody actually clicking it. */
+@keyframes coach-cursor {
+    0%   { transform: translate(16px, 16px) scale(1); opacity: 0; }
+    22%  { transform: translate(0, 0) scale(1); opacity: 1; }
+    34%  { transform: translate(0, 0) scale(.82); opacity: 1; }
+    46%  { transform: translate(0, 0) scale(1); opacity: 1; }
+    82%  { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(16px, 16px) scale(1); opacity: 0; }
+}
+
+/* The billing tip sits above a row of choices rather than a single button. */
+.svc-billing .coach-tip {
+    margin-bottom: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .coach-tip,
+    .is-coached::after,
+    .is-coached::before {
+        animation: none;
+    }
+
+    .is-coached::before { opacity: 1; transform: none; }
+}
+
+/* ── "This is live" bar, embed only ──────────────────────────────────────────────── */
+
+/* Before anyone reads a coach mark they have to believe the frame is worth touching at all. Navy
+ * ground with an azure dot: quiet enough to sit above LEAP's title bar without fighting it, loud
+ * enough that nobody mistakes the frame for a screenshot. */
+body.is-embed .demo-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 13px;
+    padding: 10px 18px;
+    background: var(--sail-navy);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+}
+
+body.is-embed .demo-banner strong {
+    color: var(--sail-azure);
+    font-weight: 700;
+}
+
+.demo-banner-dot {
+    position: relative;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--sail-azure);
+    flex: none;
+}
+
+.demo-banner-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--sail-azure);
+    animation: demo-pulse 2s ease-out infinite;
+}
+
+@keyframes demo-pulse {
+    0%   { transform: scale(1); opacity: .7; }
+    70%  { transform: scale(2.8); opacity: 0; }
+    100% { transform: scale(2.8); opacity: 0; }
+}
+
+.demo-banner { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+    .demo-banner-dot::after { animation: none; }
+}
+
+/* ── The report's scroll cue, embed only ─────────────────────────────────────────── */
+
+/* Pinned to the frame rather than the document, so it stays put while the report runs past
+ * underneath it. */
+.vr-scroll-cue { display: none; }
+
+body.is-embed .vr-scroll-cue {
+    display: flex;
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%);
+    z-index: 40;
+    align-items: center;
+    gap: 11px;
+    padding: 12px 22px;
+    border-radius: 999px;
+    background: linear-gradient(101deg, var(--sail-marine), var(--sail-azure));
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: .01em;
+    box-shadow: 0 12px 30px rgba(6, 16, 40, .45);
+}
+
+body.is-embed .vr-scroll-cue svg {
+    animation: cue-nudge 1.8s ease-in-out infinite;
+}
+
+@keyframes cue-nudge {
+    0%, 100% { transform: translateY(-2px); opacity: .65; }
+    50%      { transform: translateY(3px); opacity: 1; }
+}
+
+body.is-embed.has-scrolled .vr-scroll-cue {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s ease;
+}
+
+/* A scrollbar the viewer can actually see is half the instruction. */
+body.is-embed .vr-page {
+    scrollbar-color: var(--sail-azure) rgba(255, 255, 255, .12);
+}
+
+body.is-embed::-webkit-scrollbar { width: 14px; }
+body.is-embed::-webkit-scrollbar-track { background: rgba(255, 255, 255, .12); }
+body.is-embed::-webkit-scrollbar-thumb { background: var(--sail-azure); border-radius: 999px; }
+
+@media (prefers-reduced-motion: reduce) {
+    body.is-embed .vr-scroll-cue svg { animation: none; }
+}
+
+/* ===================================================================================== */
+/* The valuation report                                                                  */
+/*                                                                                       */
+/* Everything above this line is LEAP's chrome. This is not — it is a Sail document, so   */
+/* it carries Sail's palette and faces, mirroring                                         */
+/* app/api/src/views/valuationReport/ValuationReport.tsx. The two idioms sit side by side  */
+/* deliberately: the practitioner opens our report out of their matter and should be able  */
+/* to tell whose document it is.                                                           */
+/* ===================================================================================== */
+
+@font-face {
+    font-family: "Quicksand";
+    src: url("../leap-deck/fonts/quicksand-latin-var.woff2") format("woff2");
+    font-weight: 300 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Roboto Slab";
+    src: url("../leap-deck/fonts/roboto-slab-latin-var.woff2") format("woff2");
+    font-weight: 300 700;
+    font-display: swap;
+}
+
+.vr-page {
+    background: rgb(7, 42, 73);
+    min-height: 100%;
+    font-family: "Quicksand", "Helvetica Neue", Arial, sans-serif;
+    color: rgb(17, 24, 39);
+    padding: 32px 16px 64px;
+}
+
+.vr-inner { max-width: 896px; margin: 0 auto; }
+
+.vr-brandbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 20px;
+    color: #fff;
+}
+
+.vr-logo { display: block; line-height: 0; }
+
+.vr-logo-word {
+    font-family: "Roboto Slab", Georgia, serif;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: .01em;
+}
+
+.vr-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, .1), 0 4px 6px -4px rgba(0, 0, 0, .1);
+}
+
+.vr-eyebrow {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: rgb(0, 116, 197);
+    margin: 0;
+}
+
+.vr-h1 {
+    font-family: "Roboto Slab", Georgia, serif;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 8px 0 0;
+}
+
+.vr-h2 {
+    font-family: "Roboto Slab", Georgia, serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 16px;
+}
+
+.vr-lead { font-size: 15px; color: rgb(55, 65, 81); line-height: 1.6; margin: 12px 0 0; }
+.vr-meta { font-size: 13px; color: rgb(107, 114, 128); margin: 8px 0 20px; }
+
+.vr-grid { display: flex; flex-wrap: wrap; gap: 0 32px; }
+
+.vr-fact {
+    min-width: 180px;
+    flex: 1 1 40%;
+    padding: 8px 0;
+    border-bottom: 1px solid rgb(229, 231, 235);
+}
+
+.vr-key {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: rgb(107, 114, 128);
+}
+
+.vr-value { font-size: 15px; font-weight: 600; margin-top: 2px; }
+
+.vr-probate {
+    background: rgb(240, 247, 255);
+    border: 1px solid rgb(224, 239, 254);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.vr-probate-figure {
+    font-family: "Roboto Slab", Georgia, serif;
+    font-size: 34px;
+    font-weight: 700;
+    color: rgb(7, 42, 73);
+    margin-top: 8px;
+}
+
+.vr-price-row { display: flex; flex-wrap: wrap; gap: 16px; }
+
+.vr-price {
+    flex: 1 1 200px;
+    border-radius: 12px;
+    border: 2px solid rgb(229, 231, 235);
+    background: rgb(249, 250, 251);
+    padding: 24px;
+    text-align: center;
+}
+
+.vr-price--lead { border-color: rgb(12, 147, 231); background: rgb(240, 247, 255); }
+
+.vr-price-figure {
+    font-family: "Roboto Slab", Georgia, serif;
+    font-size: 30px;
+    font-weight: 700;
+    margin-top: 8px;
+}
+
+.vr-price--lead .vr-price-figure { color: rgb(7, 42, 73); }
+.vr-price-note { font-size: 12px; color: rgb(107, 114, 128); margin: 8px 0 0; line-height: 1.5; }
+
+.vr-legal-h { font-size: 13px; font-weight: 600; margin: 16px 0 4px; }
+.vr-legal { font-size: 12px; color: rgb(75, 85, 99); line-height: 1.7; margin: 0; }
+.vr-prose { font-size: 14px; color: rgb(55, 65, 81); line-height: 1.7; margin: 0 0 12px; }
+.vr-small { font-size: 12px; color: rgb(107, 114, 128); margin: 12px 0 0; }
+
+.vr-assess { display: flex; flex-wrap: wrap; gap: 16px; }
+
+.vr-assess-box { flex: 1 1 300px; border-radius: 8px; padding: 16px; }
+.vr-assess-box--good { background: rgb(240, 253, 244); color: rgb(20, 83, 45); }
+.vr-assess-box--watch { background: rgb(255, 251, 235); color: rgb(120, 53, 15); }
+.vr-assess-box .vr-legal-h { margin-top: 0; color: inherit; }
+
+.vr-list { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.7; }
+
+.vr-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+.vr-table th {
+    text-align: left;
+    padding-bottom: 8px;
+    padding-right: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: rgb(107, 114, 128);
+    border-bottom: 1px solid rgb(229, 231, 235);
+}
+
+.vr-table td {
+    padding: 8px 16px 8px 0;
+    color: rgb(75, 85, 99);
+    border-bottom: 1px solid rgb(229, 231, 235);
+}
+
+.vr-table .vr-td-lead { font-weight: 500; color: rgb(17, 24, 39); }
+
+.vr-match { display: flex; align-items: center; gap: 6px; }
+.vr-match-track { height: 6px; width: 48px; border-radius: 9999px; background: rgb(229, 231, 235); display: block; }
+.vr-match-fill { display: block; height: 6px; border-radius: 9999px; background: rgb(245, 158, 11); }
+.vr-match-fill.is-strong { background: rgb(16, 185, 129); }
+.vr-match-label { font-size: 12px; color: rgb(107, 114, 128); font-variant-numeric: tabular-nums; }
+
+.vr-footer { text-align: center; font-size: 11px; color: rgba(255, 255, 255, .55); padding-top: 8px; line-height: 1.7; }
+
+.side-report-link { width: 100%; margin-top: 8px; }
+
+/* The report brings its own ground, so the embed reset must not repaint it LEAP grey. */
+body.is-embed .vr-page { background: rgb(7, 42, 73); }
+
+/* Photographs run two-up, with the front elevation full width because it is the one shot a
+ * District Valuer actually looks at. */
+.vr-photos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+.vr-photo {
+    margin: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgb(229, 231, 235);
+    background: rgb(241, 243, 245);
+}
+
+.vr-photo--wide { grid-column: 1 / -1; }
+
+.vr-photo img {
+    display: block;
+    width: 100%;
+    height: 210px;
+    object-fit: cover;
+}
+
+.vr-photo--wide img { height: 340px; }
+
+.vr-photo figcaption {
+    font-size: 12px;
+    color: rgb(75, 85, 99);
+    padding: 8px 10px;
+    background: #fff;
+}
+
+.vr-photo--empty {
+    height: 132px;
+    display: flex;
+    align-items: flex-end;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+.vr-photo--empty span { font-size: 11px; color: rgb(140, 148, 158); line-height: 1.3; }
+
+.vr-floorplan {
+    display: block;
+    width: 100%;
+    border: 1px solid rgb(229, 231, 235);
+    border-radius: 8px;
+    background: #fff;
+}
+
+.vr-table--market { margin-top: 8px; }
